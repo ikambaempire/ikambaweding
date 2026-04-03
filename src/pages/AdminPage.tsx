@@ -4,23 +4,33 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Upload, Trash2, Lock, Image, Video, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { verifyAdmin, getMedia, addMedia, removeMedia, fileToBase64, MediaItem } from "@/lib/storage";
+import { verifyAdmin, getMedia, addMedia, removeMedia, MediaItem } from "@/lib/storage";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
 
 const AdminPage = () => {
   const [isAuth, setIsAuth] = useState(false);
   const [password, setPassword] = useState("");
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState("");
   const [activeTab, setActiveTab] = useState<"image" | "video">("image");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  const loadMedia = async () => {
+    const items = await getMedia();
+    setMedia(items);
+  };
+
+  useEffect(() => {
+    if (isAuth) loadMedia();
+  }, [isAuth]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (verifyAdmin(password)) {
       setIsAuth(true);
-      setMedia(getMedia());
     } else {
       toast({ title: "Invalid password", variant: "destructive" });
     }
@@ -28,9 +38,12 @@ const AdminPage = () => {
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (!files) return;
+    if (!files || files.length === 0) return;
 
     setUploading(true);
+    let uploaded = 0;
+    const total = files.length;
+
     try {
       for (const file of Array.from(files)) {
         const isVideo = file.type.startsWith("video/");
@@ -41,31 +54,26 @@ const AdminPage = () => {
           continue;
         }
 
-        if (file.size > 50 * 1024 * 1024) {
-          toast({ title: `Skipped ${file.name} — file too large (max 50MB)`, variant: "destructive" });
-          continue;
-        }
-
-        const url = await fileToBase64(file);
-        addMedia({
-          type: isVideo ? "video" : "image",
-          url,
-          title: file.name.replace(/\.[^.]+$/, ""),
-        });
+        setUploadProgress(`Uploading ${++uploaded}/${total}: ${file.name}`);
+        const title = file.name.replace(/\.[^.]+$/, "");
+        await addMedia(file, isVideo ? "video" : "image", title);
       }
-      setMedia(getMedia());
-      toast({ title: "Upload complete!" });
-    } catch {
-      toast({ title: "Upload failed", variant: "destructive" });
+
+      await loadMedia();
+      toast({ title: `${uploaded} file(s) uploaded successfully!` });
+    } catch (err) {
+      console.error("Upload error:", err);
+      toast({ title: "Upload failed — check browser storage limits", variant: "destructive" });
     } finally {
       setUploading(false);
+      setUploadProgress("");
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
-  const handleDelete = (id: string) => {
-    removeMedia(id);
-    setMedia(getMedia());
+  const handleDelete = async (id: string) => {
+    await removeMedia(id);
+    await loadMedia();
     toast({ title: "Deleted" });
   };
 
@@ -110,7 +118,6 @@ const AdminPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="container flex items-center justify-between py-4">
           <div className="flex items-center gap-4">
@@ -130,7 +137,6 @@ const AdminPage = () => {
       </div>
 
       <div className="container py-8">
-        {/* Upload Area */}
         <div className="bg-card border border-border rounded-xl p-6 mb-8">
           <h2 className="text-lg font-semibold text-foreground mb-4">Upload Content</h2>
           <input
@@ -149,12 +155,14 @@ const AdminPage = () => {
             <Upload size={18} className="mr-2" />
             {uploading ? "Uploading..." : "Choose Files"}
           </Button>
+          {uploadProgress && (
+            <p className="text-sm text-primary mt-2">{uploadProgress}</p>
+          )}
           <p className="text-xs text-muted-foreground mt-2">
-            Supports images (JPG, PNG, WebP) and videos (MP4, MOV). Max 50MB per file.
+            Supports images and videos up to 4GB per file. Stored in browser storage.
           </p>
         </div>
 
-        {/* Tabs */}
         <div className="flex gap-2 mb-6">
           <Button
             variant={activeTab === "image" ? "default" : "outline"}
@@ -174,7 +182,6 @@ const AdminPage = () => {
           </Button>
         </div>
 
-        {/* Media Grid */}
         {filtered.length === 0 ? (
           <p className="text-muted-foreground text-center py-12">
             No {activeTab}s uploaded yet

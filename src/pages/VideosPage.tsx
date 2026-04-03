@@ -10,12 +10,11 @@ const VideosPage = () => {
   const [selectedVideo, setSelectedVideo] = useState<MediaItem | null>(null);
 
   useEffect(() => {
-    setVideos(getMedia("video"));
+    getMedia("video").then(setVideos);
   }, []);
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="container flex items-center gap-4 py-4">
           <Button variant="ghost" size="icon" asChild>
@@ -50,12 +49,7 @@ const VideosPage = () => {
                 onClick={() => setSelectedVideo(video)}
               >
                 <div className="relative aspect-video rounded-lg overflow-hidden bg-card border border-border">
-                  <video
-                    src={video.url}
-                    className="w-full h-full object-cover"
-                    muted
-                    preload="metadata"
-                  />
+                  <video src={video.url} className="w-full h-full object-cover" muted preload="metadata" />
                   <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                     <div className="w-14 h-14 rounded-full bg-primary/90 flex items-center justify-center group-hover:scale-110 transition-transform">
                       <Play size={24} className="text-primary-foreground ml-1" />
@@ -69,29 +63,13 @@ const VideosPage = () => {
         )}
       </div>
 
-      {/* Video Modal */}
       {selectedVideo && (
-        <div
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
-          onClick={() => setSelectedVideo(null)}
-        >
+        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setSelectedVideo(null)}>
           <div className="w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
-            <video
-              src={selectedVideo.url}
-              controls
-              autoPlay
-              className="w-full rounded-lg"
-            />
+            <video src={selectedVideo.url} controls autoPlay className="w-full rounded-lg" />
             <div className="flex items-center justify-between mt-3">
               <p className="text-foreground font-medium">{selectedVideo.title}</p>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground"
-                onClick={() => setSelectedVideo(null)}
-              >
-                Close
-              </Button>
+              <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={() => setSelectedVideo(null)}>Close</Button>
             </div>
           </div>
         </div>
