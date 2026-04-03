@@ -10,12 +10,11 @@ const ImagesPage = () => {
   const [selectedImage, setSelectedImage] = useState<MediaItem | null>(null);
 
   useEffect(() => {
-    setImages(getMedia("image"));
+    getMedia("image").then(setImages);
   }, []);
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="container flex items-center gap-4 py-4">
           <Button variant="ghost" size="icon" asChild>
@@ -50,12 +49,7 @@ const ImagesPage = () => {
                 onClick={() => setSelectedImage(image)}
               >
                 <div className="relative rounded-lg overflow-hidden">
-                  <img
-                    src={image.url}
-                    alt={image.title}
-                    className="w-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    loading="lazy"
-                  />
+                  <img src={image.url} alt={image.title} className="w-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors" />
                 </div>
               </motion.div>
@@ -64,26 +58,12 @@ const ImagesPage = () => {
         )}
       </div>
 
-      {/* Lightbox */}
       {selectedImage && (
-        <div
-          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"
-          onClick={() => setSelectedImage(null)}
-        >
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-4 right-4 text-foreground z-10"
-            onClick={() => setSelectedImage(null)}
-          >
+        <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4" onClick={() => setSelectedImage(null)}>
+          <Button variant="ghost" size="icon" className="absolute top-4 right-4 text-foreground z-10" onClick={() => setSelectedImage(null)}>
             <X size={24} />
           </Button>
-          <img
-            src={selectedImage.url}
-            alt={selectedImage.title}
-            className="max-w-full max-h-[90vh] object-contain rounded-lg"
-            onClick={(e) => e.stopPropagation()}
-          />
+          <img src={selectedImage.url} alt={selectedImage.title} className="max-w-full max-h-[90vh] object-contain rounded-lg" onClick={(e) => e.stopPropagation()} />
         </div>
       )}
     </div>
