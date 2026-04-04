@@ -29,7 +29,7 @@ const Index = () => {
           className="text-4xl sm:text-5xl md:text-7xl font-display font-bold text-primary-foreground leading-tight mb-2"
         >
           IKAMBA{" "}
-          <span className="bg-primary px-3 py-1 rounded-md">WEDDING</span>
+          <span className="text-primary">WEDDING</span>
         </motion.h1>
 
         <motion.p
