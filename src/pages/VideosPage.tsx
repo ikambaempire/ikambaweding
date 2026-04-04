@@ -4,6 +4,7 @@ import { ArrowLeft, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getMedia, MediaItem } from "@/lib/storage";
 import { useState, useEffect } from "react";
+import ShareButtons from "@/components/ShareButtons";
 
 const VideosPage = () => {
   const [videos, setVideos] = useState<MediaItem[]>([]);
@@ -45,10 +46,12 @@ const VideosPage = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="group cursor-pointer"
-                onClick={() => setSelectedVideo(video)}
+                className="group"
               >
-                <div className="relative aspect-video rounded-lg overflow-hidden bg-card border border-border">
+                <div
+                  className="relative aspect-video rounded-lg overflow-hidden bg-card border border-border cursor-pointer"
+                  onClick={() => setSelectedVideo(video)}
+                >
                   <video src={video.url} className="w-full h-full object-cover" muted preload="metadata" />
                   <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                     <div className="w-14 h-14 rounded-full bg-primary/90 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -56,7 +59,10 @@ const VideosPage = () => {
                     </div>
                   </div>
                 </div>
-                <p className="mt-2 text-sm text-foreground font-medium">{video.title}</p>
+                <div className="flex items-center justify-between mt-2">
+                  <p className="text-sm text-foreground font-medium">{video.title}</p>
+                  <ShareButtons url={video.url} title={video.title} />
+                </div>
               </motion.div>
             ))}
           </div>
@@ -69,7 +75,10 @@ const VideosPage = () => {
             <video src={selectedVideo.url} controls autoPlay className="w-full rounded-lg" />
             <div className="flex items-center justify-between mt-3">
               <p className="text-foreground font-medium">{selectedVideo.title}</p>
-              <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={() => setSelectedVideo(null)}>Close</Button>
+              <div className="flex items-center gap-2">
+                <ShareButtons url={selectedVideo.url} title={selectedVideo.title} />
+                <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={() => setSelectedVideo(null)}>Close</Button>
+              </div>
             </div>
           </div>
         </div>

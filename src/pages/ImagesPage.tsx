@@ -4,6 +4,7 @@ import { ArrowLeft, ImageIcon, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getMedia, MediaItem } from "@/lib/storage";
 import { useState, useEffect } from "react";
+import ShareButtons from "@/components/ShareButtons";
 
 const ImagesPage = () => {
   const [images, setImages] = useState<MediaItem[]>([]);
@@ -45,12 +46,20 @@ const ImagesPage = () => {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: i * 0.05 }}
-                className="break-inside-avoid cursor-pointer group"
-                onClick={() => setSelectedImage(image)}
+                className="break-inside-avoid group"
               >
                 <div className="relative rounded-lg overflow-hidden">
-                  <img src={image.url} alt={image.title} className="w-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors" />
+                  <img
+                    src={image.url}
+                    alt={image.title}
+                    className="w-full object-cover cursor-pointer group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                    onClick={() => setSelectedImage(image)}
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors pointer-events-none" />
+                  <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <ShareButtons url={image.url} title={image.title} />
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -63,7 +72,13 @@ const ImagesPage = () => {
           <Button variant="ghost" size="icon" className="absolute top-4 right-4 text-foreground z-10" onClick={() => setSelectedImage(null)}>
             <X size={24} />
           </Button>
-          <img src={selectedImage.url} alt={selectedImage.title} className="max-w-full max-h-[90vh] object-contain rounded-lg" onClick={(e) => e.stopPropagation()} />
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
+            <img src={selectedImage.url} alt={selectedImage.title} className="max-w-full max-h-[85vh] object-contain rounded-lg" />
+            <div className="flex items-center justify-between mt-3">
+              <p className="text-foreground text-sm font-medium">{selectedImage.title}</p>
+              <ShareButtons url={selectedImage.url} title={selectedImage.title} />
+            </div>
+          </div>
         </div>
       )}
     </div>
