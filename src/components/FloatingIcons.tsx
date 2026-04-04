@@ -21,8 +21,7 @@ const FloatingIcons = () => {
         <motion.div
           key={i}
           className="absolute"
-          style={{ color: i % 2 === 0 ? 'rgba(218, 83, 34, 0.15)' : 'rgba(255, 193, 7, 0.15)' }}
-          style={{ left: x, top: y }}
+          style={{ left: x, top: y, color: i % 2 === 0 ? 'rgba(218, 83, 34, 0.2)' : 'rgba(255, 193, 7, 0.2)' }}
           initial={{ opacity: 0, y: 20 }}
           animate={{
             opacity: [0, 0.15, 0.08, 0.15, 0],
