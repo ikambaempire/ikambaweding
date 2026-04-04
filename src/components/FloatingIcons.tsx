@@ -16,7 +16,7 @@ const icons = [
 
 const FloatingIcons = () => {
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden z-[1]">
+    <div className="absolute inset-0 pointer-events-none overflow-hidden z-[5]">
       {icons.map(({ Icon, x, y, size, delay, duration }, i) => (
         <motion.div
           key={i}
