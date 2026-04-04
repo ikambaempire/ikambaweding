@@ -4,20 +4,32 @@ import { Button } from "@/components/ui/button";
 import { Play, Image } from "lucide-react";
 import YouTubeBackground from "@/components/YouTubeBackground";
 import AnimatedText from "@/components/AnimatedText";
+import FloatingIcons from "@/components/FloatingIcons";
+import logo from "@/assets/logo.png";
 
 const Index = () => {
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
       <YouTubeBackground />
+      <FloatingIcons />
 
       <div className="relative z-10 text-center px-4 max-w-3xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="flex justify-center mb-4"
+        >
+          <img src={logo} alt="Ikamba Wedding Logo" className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 object-contain" />
+        </motion.div>
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3 }}
           className="text-4xl sm:text-5xl md:text-7xl font-display font-bold text-primary-foreground leading-tight mb-2"
         >
-          IKAMBA WEDDING
+          IKAMBA{" "}
+          <span className="bg-primary px-3 py-1 rounded-md">WEDDING</span>
         </motion.h1>
 
         <motion.p
