@@ -4,8 +4,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
-import VideosPage from "./pages/VideosPage";
-import ImagesPage from "./pages/ImagesPage";
+import PortfolioPage from "./pages/PortfolioPage";
+import FolderDetailPage from "./pages/FolderDetailPage";
+import ServicesPage from "./pages/ServicesPage";
+import PricingPage from "./pages/PricingPage";
+import AboutPage from "./pages/AboutPage";
+import BookingPage from "./pages/BookingPage";
 import AdminPage from "./pages/AdminPage";
 import NotFound from "./pages/NotFound";
 
@@ -19,8 +23,12 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/videos" element={<VideosPage />} />
-          <Route path="/images" element={<ImagesPage />} />
+          <Route path="/portfolio" element={<PortfolioPage />} />
+          <Route path="/portfolio/:slug" element={<FolderDetailPage />} />
+          <Route path="/services" element={<ServicesPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/booking" element={<BookingPage />} />
           <Route path="/admin" element={<AdminPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
