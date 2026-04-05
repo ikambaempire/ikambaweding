@@ -14,27 +14,110 @@ export type Database = {
   }
   public: {
     Tables: {
+      bookings: {
+        Row: {
+          client_email: string
+          client_name: string
+          client_phone: string
+          created_at: string
+          id: string
+          message: string | null
+          package: string
+          status: string
+          venue: string | null
+          wedding_date: string
+        }
+        Insert: {
+          client_email: string
+          client_name: string
+          client_phone: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          package: string
+          status?: string
+          venue?: string | null
+          wedding_date: string
+        }
+        Update: {
+          client_email?: string
+          client_name?: string
+          client_phone?: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          package?: string
+          status?: string
+          venue?: string | null
+          wedding_date?: string
+        }
+        Relationships: []
+      }
       media: {
         Row: {
+          category: string
           created_at: string
           file_path: string
+          folder_id: string | null
           id: string
           title: string
           type: string
         }
         Insert: {
+          category?: string
           created_at?: string
           file_path: string
+          folder_id?: string | null
           id?: string
           title: string
           type: string
         }
         Update: {
+          category?: string
           created_at?: string
           file_path?: string
+          folder_id?: string | null
           id?: string
           title?: string
           type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "wedding_folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wedding_folders: {
+        Row: {
+          access_code: string | null
+          cover_image: string | null
+          created_at: string
+          id: string
+          is_public: boolean
+          name: string
+          slug: string
+        }
+        Insert: {
+          access_code?: string | null
+          cover_image?: string | null
+          created_at?: string
+          id?: string
+          is_public?: boolean
+          name: string
+          slug: string
+        }
+        Update: {
+          access_code?: string | null
+          cover_image?: string | null
+          created_at?: string
+          id?: string
+          is_public?: boolean
+          name?: string
+          slug?: string
         }
         Relationships: []
       }
