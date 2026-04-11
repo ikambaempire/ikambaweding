@@ -1,22 +1,35 @@
 import { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FolderOpen, Lock, ArrowLeft, ImageIcon } from "lucide-react";
+import { FolderOpen, Lock, ImageIcon, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getFolders, WeddingFolder } from "@/lib/storage";
+import { getFolders, getMedia, WeddingFolder } from "@/lib/storage";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
+interface FolderWithCount extends WeddingFolder {
+  mediaCount: number;
+}
+
 const PortfolioPage = () => {
-  const [folders, setFolders] = useState<WeddingFolder[]>([]);
+  const [folders, setFolders] = useState<FolderWithCount[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getFolders().then((f) => {
-      setFolders(f);
+    const load = async () => {
+      const allFolders = await getFolders();
+      const withCounts = await Promise.all(
+        allFolders.map(async (f) => {
+          if (!f.isPublic) return { ...f, mediaCount: 0 };
+          const media = await getMedia(undefined, f.id);
+          return { ...f, mediaCount: media.length };
+        })
+      );
+      setFolders(withCounts);
       setLoading(false);
-    });
+    };
+    load();
   }, []);
 
   const publicFolders = folders.filter((f) => f.isPublic);
@@ -25,21 +38,33 @@ const PortfolioPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="pt-20 pb-12">
-        <div className="container">
+
+      {/* Hero banner */}
+      <div className="relative h-[40vh] md:h-[50vh] overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1920&q=80"
+          alt="Portfolio"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 flex items-center justify-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-12"
+            className="text-center"
           >
-            <h1 className="text-3xl md:text-5xl font-display font-bold text-foreground mb-3">
+            <h1 className="text-4xl md:text-6xl font-display font-bold text-primary-foreground mb-3">
               Our <span className="text-primary">Portfolio</span>
             </h1>
-            <p className="text-muted-foreground max-w-lg mx-auto">
-              Browse through our beautiful wedding stories, organized by couple.
+            <p className="text-primary-foreground/60 tracking-[0.3em] text-xs uppercase">
+              Browse through our beautiful wedding stories
             </p>
           </motion.div>
+        </div>
+      </div>
 
+      <div className="py-16 md:py-24">
+        <div className="container">
           {loading ? (
             <div className="text-center py-20 text-muted-foreground">Loading...</div>
           ) : publicFolders.length === 0 && privateFolders.length === 0 ? (
@@ -51,26 +76,38 @@ const PortfolioPage = () => {
           ) : (
             <>
               {publicFolders.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-16">
                   {publicFolders.map((folder, i) => (
                     <motion.div
                       key={folder.id}
-                      initial={{ opacity: 0, y: 20 }}
+                      initial={{ opacity: 0, y: 30 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.1 }}
                     >
                       <Link to={`/portfolio/${folder.slug}`} className="block group">
-                        <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-card border border-border">
+                        <div className="relative aspect-[4/3] rounded-xl overflow-hidden">
                           {folder.coverImage ? (
-                            <img src={folder.coverImage} alt={folder.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                            <img
+                              src={folder.coverImage}
+                              alt={folder.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                            />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center bg-muted">
                               <ImageIcon size={48} className="text-muted-foreground/30" />
                             </div>
                           )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                          <div className="absolute bottom-0 left-0 right-0 p-4">
-                            <h3 className="font-display font-bold text-foreground text-lg">{folder.name}</h3>
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+                          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                            <h3 className="font-display font-bold text-primary-foreground text-xl md:text-2xl mb-1">
+                              {folder.name}
+                            </h3>
+                            <p className="text-primary-foreground/60 text-sm">
+                              {folder.mediaCount} photos & videos
+                            </p>
+                          </div>
+                          <div className="absolute top-4 right-4 w-10 h-10 rounded-full bg-primary-foreground/10 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <ArrowRight size={18} className="text-primary-foreground" />
                           </div>
                         </div>
                       </Link>
@@ -80,11 +117,13 @@ const PortfolioPage = () => {
               )}
 
               {privateFolders.length > 0 && (
-                <div className="mt-12">
+                <div className="border-t border-border pt-12">
                   <h2 className="text-xl font-display font-semibold text-foreground mb-4 flex items-center gap-2">
                     <Lock size={18} className="text-primary" /> Private Galleries
                   </h2>
-                  <p className="text-muted-foreground text-sm mb-6">Have an access code? Enter the folder link shared with you to view your private gallery.</p>
+                  <p className="text-muted-foreground text-sm mb-6">
+                    Have an access code? Enter the folder link shared with you to view your private gallery.
+                  </p>
                 </div>
               )}
             </>
