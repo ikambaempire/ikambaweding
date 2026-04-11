@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Upload, Trash2, Lock, Image, Video, LogOut, FolderPlus, Folder, Calendar, Plus, Eye } from "lucide-react";
+import { ArrowLeft, Upload, Trash2, Lock, Image, Video, LogOut, FolderPlus, Folder, Calendar, Plus, Eye, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { verifyAdmin, getMedia, addMedia, removeMedia, getFolders, createFolder, deleteFolder, getBookings, updateBookingStatus, MediaItem, WeddingFolder, BookingRequest, CATEGORIES } from "@/lib/storage";
+import { verifyAdmin, getMedia, addMedia, removeMedia, getFolders, createFolder, deleteFolder, updateFolderCover, getBookings, updateBookingStatus, MediaItem, WeddingFolder, BookingRequest, CATEGORIES } from "@/lib/storage";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 const AdminPage = () => {
@@ -101,6 +102,8 @@ const FoldersTab = ({ folders, onRefresh }: { folders: WeddingFolder[]; onRefres
   const [name, setName] = useState("");
   const [isPublic, setIsPublic] = useState(true);
   const [accessCode, setAccessCode] = useState("");
+  const [uploadingCover, setUploadingCover] = useState<string | null>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const handleCreate = async () => {
@@ -119,6 +122,25 @@ const FoldersTab = ({ folders, onRefresh }: { folders: WeddingFolder[]; onRefres
     await deleteFolder(id);
     await onRefresh();
     toast({ title: "Folder deleted" });
+  };
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>, folderId: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingCover(folderId);
+    try {
+      const ext = file.name.split('.').pop() || 'jpg';
+      const filePath = `covers/${folderId}.${ext}`;
+      await supabase.storage.from('media').upload(filePath, file, { cacheControl: '3600', upsert: true });
+      const { data: urlData } = supabase.storage.from('media').getPublicUrl(filePath);
+      await updateFolderCover(folderId, urlData.publicUrl);
+      await onRefresh();
+      toast({ title: "Cover photo updated!" });
+    } catch (err: any) {
+      toast({ title: "Failed to upload cover", variant: "destructive" });
+    } finally {
+      setUploadingCover(null);
+    }
   };
 
   return (
@@ -143,18 +165,47 @@ const FoldersTab = ({ folders, onRefresh }: { folders: WeddingFolder[]; onRefres
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {folders.map((f) => (
-            <div key={f.id} className="bg-card border border-border rounded-xl p-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="font-semibold text-foreground">{f.name}</h3>
-                  <p className="text-xs text-muted-foreground mt-1">{f.isPublic ? "Public" : `Private • Code: ${f.accessCode}`}</p>
-                  <p className="text-xs text-muted-foreground">/{f.slug}</p>
-                </div>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="icon" asChild className="text-muted-foreground hover:text-foreground">
-                    <Link to={`/portfolio/${f.slug}`}><Eye size={16} /></Link>
-                  </Button>
-                  <Button variant="destructive" size="icon" onClick={() => handleDelete(f.id)}><Trash2 size={16} /></Button>
+            <div key={f.id} className="bg-card border border-border rounded-xl overflow-hidden">
+              {/* Cover preview */}
+              <div className="relative aspect-video bg-muted">
+                {f.coverImage ? (
+                  <img src={f.coverImage} alt={f.name} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <ImageIcon size={32} className="text-muted-foreground/30" />
+                  </div>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  id={`cover-${f.id}`}
+                  onChange={(e) => handleCoverUpload(e, f.id)}
+                />
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="absolute bottom-2 right-2 text-xs"
+                  onClick={() => document.getElementById(`cover-${f.id}`)?.click()}
+                  disabled={uploadingCover === f.id}
+                >
+                  {uploadingCover === f.id ? "Uploading..." : f.coverImage ? "Change Cover" : "Add Cover Photo"}
+                </Button>
+              </div>
+
+              <div className="p-4">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="font-semibold text-foreground">{f.name}</h3>
+                    <p className="text-xs text-muted-foreground mt-1">{f.isPublic ? "Public" : `Private • Code: ${f.accessCode}`}</p>
+                    <p className="text-xs text-muted-foreground">/{f.slug}</p>
+                  </div>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" asChild className="text-muted-foreground hover:text-foreground">
+                      <Link to={`/portfolio/${f.slug}`}><Eye size={16} /></Link>
+                    </Button>
+                    <Button variant="destructive" size="icon" onClick={() => handleDelete(f.id)}><Trash2 size={16} /></Button>
+                  </div>
                 </div>
               </div>
             </div>

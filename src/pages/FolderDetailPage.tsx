@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Play, X, ImageIcon, FolderOpen } from "lucide-react";
+import { ArrowLeft, Play, X, ImageIcon, FolderOpen, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getFolders, getMedia, WeddingFolder, MediaItem, CATEGORIES } from "@/lib/storage";
 import ShareButtons from "@/components/ShareButtons";
 import Navbar from "@/components/Navbar";
@@ -19,6 +20,8 @@ const FolderDetailPage = () => {
   const [accessCode, setAccessCode] = useState("");
   const [accessGranted, setAccessGranted] = useState(false);
   const [accessError, setAccessError] = useState(false);
+
+  const folderUrl = typeof window !== "undefined" ? window.location.href : "";
 
   useEffect(() => {
     getFolders().then((folders) => {
@@ -79,14 +82,18 @@ const FolderDetailPage = () => {
       <Navbar />
       <div className="pt-20 pb-12">
         <div className="container">
-          <div className="flex items-center gap-4 mb-8">
-            <Button variant="ghost" size="icon" asChild>
-              <Link to="/portfolio"><ArrowLeft size={20} /></Link>
-            </Button>
-            <div>
-              <h1 className="text-2xl md:text-4xl font-display font-bold text-foreground">{folder.name}</h1>
-              <p className="text-muted-foreground text-sm">{media.length} files</p>
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" size="icon" asChild>
+                <Link to="/portfolio"><ArrowLeft size={20} /></Link>
+              </Button>
+              <div>
+                <h1 className="text-2xl md:text-4xl font-display font-bold text-foreground">{folder.name}</h1>
+                <p className="text-muted-foreground text-sm">{media.length} files</p>
+              </div>
             </div>
+            {/* Share entire folder */}
+            <ShareButtons url={folderUrl} title={folder.name} />
           </div>
 
           {/* Category Filter */}
@@ -106,56 +113,67 @@ const FolderDetailPage = () => {
             </div>
           )}
 
-          {/* Images */}
-          {images.length > 0 && (
-            <div className="mb-12">
-              <h2 className="text-lg font-display font-semibold text-foreground mb-4">Photos</h2>
-              <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
-                {images.map((item, i) => (
-                  <motion.div key={item.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.05 }} className="break-inside-avoid group">
-                    <div className="relative rounded-lg overflow-hidden">
-                      <img src={item.url} alt={item.title} className="w-full object-cover cursor-pointer group-hover:scale-105 transition-transform duration-500" loading="lazy" onClick={() => setSelectedItem(item)} />
-                      <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <ShareButtons url={item.url} title={item.title} />
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          )}
+          {/* Tabs for Photos / Videos */}
+          <Tabs defaultValue="photos" className="w-full">
+            <TabsList className="mb-6 bg-card border border-border">
+              <TabsTrigger value="photos" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <ImageIcon size={16} className="mr-2" /> Photos ({images.length})
+              </TabsTrigger>
+              <TabsTrigger value="videos" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <Video size={16} className="mr-2" /> Videos ({videos.length})
+              </TabsTrigger>
+            </TabsList>
 
-          {/* Videos */}
-          {videos.length > 0 && (
-            <div>
-              <h2 className="text-lg font-display font-semibold text-foreground mb-4">Videos</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {videos.map((video, i) => (
-                  <motion.div key={video.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="group">
-                    <div className="relative aspect-video rounded-lg overflow-hidden bg-card border border-border cursor-pointer" onClick={() => setSelectedItem(video)}>
-                      <video src={video.url} className="w-full h-full object-cover" muted preload="metadata" />
-                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                        <div className="w-14 h-14 rounded-full bg-primary/90 flex items-center justify-center group-hover:scale-110 transition-transform">
-                          <Play size={24} className="text-primary-foreground ml-1" />
+            <TabsContent value="photos">
+              {images.length > 0 ? (
+                <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+                  {images.map((item, i) => (
+                    <motion.div key={item.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.05 }} className="break-inside-avoid group">
+                      <div className="relative rounded-lg overflow-hidden">
+                        <img src={item.url} alt={item.title} className="w-full object-cover cursor-pointer group-hover:scale-105 transition-transform duration-500" loading="lazy" onClick={() => setSelectedItem(item)} />
+                        <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <ShareButtons url={item.url} title={item.title} />
                         </div>
                       </div>
-                    </div>
-                    <div className="flex items-center justify-between mt-2">
-                      <p className="text-sm text-foreground font-medium">{video.title}</p>
-                      <ShareButtons url={video.url} title={video.title} />
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          )}
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center min-h-[30vh] text-center">
+                  <ImageIcon size={48} className="text-muted-foreground/30 mb-4" />
+                  <p className="text-muted-foreground">No photos in this category yet</p>
+                </div>
+              )}
+            </TabsContent>
 
-          {filtered.length === 0 && (
-            <div className="flex flex-col items-center justify-center min-h-[30vh] text-center">
-              <ImageIcon size={48} className="text-muted-foreground/30 mb-4" />
-              <p className="text-muted-foreground">No content in this category yet</p>
-            </div>
-          )}
+            <TabsContent value="videos">
+              {videos.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {videos.map((video, i) => (
+                    <motion.div key={video.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="group">
+                      <div className="relative aspect-video rounded-lg overflow-hidden bg-card border border-border cursor-pointer" onClick={() => setSelectedItem(video)}>
+                        <video src={video.url} className="w-full h-full object-cover" muted preload="metadata" />
+                        <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                          <div className="w-14 h-14 rounded-full bg-primary/90 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <Play size={24} className="text-primary-foreground ml-1" />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between mt-2">
+                        <p className="text-sm text-foreground font-medium">{video.title}</p>
+                        <ShareButtons url={video.url} title={video.title} />
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center min-h-[30vh] text-center">
+                  <Video size={48} className="text-muted-foreground/30 mb-4" />
+                  <p className="text-muted-foreground">No videos in this category yet</p>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
 

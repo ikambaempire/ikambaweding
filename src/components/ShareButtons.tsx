@@ -1,5 +1,6 @@
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Link as LinkIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 const InstagramIcon = ({ size = 18 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -16,12 +17,17 @@ interface ShareButtonsProps {
 }
 
 const ShareButtons = ({ url, title, className = "" }: ShareButtonsProps) => {
+  const { toast } = useToast();
   const shareText = `Check out this from Ikamba Wedding: ${title}`;
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + " " + url)}`;
   const instagramCopy = () => {
     navigator.clipboard.writeText(url);
-    // Instagram doesn't support direct URL sharing, so we copy the link
-    alert("Link copied! Paste it in your Instagram story or DM.");
+    toast({ title: "Link copied!", description: "Paste it in your Instagram story or DM." });
+  };
+
+  const copyLink = () => {
+    navigator.clipboard.writeText(url);
+    toast({ title: "Link copied to clipboard!" });
   };
 
   return (
@@ -44,6 +50,15 @@ const ShareButtons = ({ url, title, className = "" }: ShareButtonsProps) => {
         aria-label="Share on Instagram"
       >
         <InstagramIcon size={18} />
+      </Button>
+      <Button
+        size="icon"
+        variant="ghost"
+        className="h-9 w-9 rounded-full bg-foreground/10 hover:bg-foreground/20 text-foreground"
+        onClick={copyLink}
+        aria-label="Copy link"
+      >
+        <LinkIcon size={18} />
       </Button>
     </div>
   );
