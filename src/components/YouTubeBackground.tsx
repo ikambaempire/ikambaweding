@@ -8,23 +8,16 @@ declare global {
 }
 
 const YouTubeBackground = () => {
-  const playerRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<any>(null);
 
   useEffect(() => {
-    const loadAPI = () => {
-      if (window.YT && window.YT.Player) {
-        createPlayer();
-        return;
-      }
-      const tag = document.createElement("script");
-      tag.src = "https://www.youtube.com/iframe_api";
-      document.head.appendChild(tag);
-      window.onYouTubeIframeAPIReady = createPlayer;
-    };
+    // Create a detached div for the player so React never tries to reconcile it
+    const playerEl = document.createElement("div");
+    containerRef.current?.appendChild(playerEl);
 
     const createPlayer = () => {
-      playerRef.current = new window.YT.Player("yt-player", {
+      playerRef.current = new window.YT.Player(playerEl, {
         videoId: "278IRQ6HSi4",
         playerVars: {
           autoplay: 1,
@@ -42,11 +35,8 @@ const YouTubeBackground = () => {
           iv_load_policy: 3,
         },
         events: {
-          onReady: (e: any) => {
-            e.target.playVideo();
-          },
+          onReady: (e: any) => e.target.playVideo(),
           onStateChange: (e: any) => {
-            // When video ends (at 22s), seek back to 0 and play again
             if (e.data === window.YT.PlayerState.ENDED) {
               e.target.seekTo(0);
               e.target.playVideo();
@@ -56,19 +46,29 @@ const YouTubeBackground = () => {
       });
     };
 
-    loadAPI();
+    if (window.YT && window.YT.Player) {
+      createPlayer();
+    } else {
+      const tag = document.createElement("script");
+      tag.src = "https://www.youtube.com/iframe_api";
+      document.head.appendChild(tag);
+      window.onYouTubeIframeAPIReady = createPlayer;
+    }
 
     return () => {
       if (playerRef.current?.destroy) {
         playerRef.current.destroy();
       }
+      if (playerEl.parentNode) {
+        playerEl.parentNode.removeChild(playerEl);
+      }
     };
   }, []);
 
   return (
-    <div ref={containerRef} className="absolute inset-0 overflow-hidden pointer-events-none">
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
       <div className="absolute inset-0 scale-[1.3] flex items-center justify-center">
-        <div id="yt-player" className="w-full h-full absolute inset-0" style={{
+        <div ref={containerRef} className="w-full h-full absolute inset-0" style={{
           position: 'absolute',
           top: '50%',
           left: '50%',
@@ -79,7 +79,6 @@ const YouTubeBackground = () => {
           minHeight: '180vh',
         }} />
       </div>
-      {/* Dark overlay to reduce brightness */}
       <div className="absolute inset-0 bg-black/65" />
     </div>
   );
