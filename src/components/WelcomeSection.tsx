@@ -13,13 +13,6 @@ const WelcomeSection = () => (
         transition={{ duration: 0.8 }}
         className="text-center"
       >
-        {/* Brand acronym */}
-        <p className="text-sm md:text-base text-primary mb-8 font-serif italic">
-          With a fine-art eye and a heart for storytelling, we capture love in its most natural light<br />
-          The in-between glances, gentle hands, joyful tears, and glowing moments you'll cherish<br />
-          for a lifetime.
-        </p>
-
         <img src={logo} alt="Ikamba Wedding Logo" className="w-16 h-16 md:w-20 md:h-20 object-contain mx-auto mb-6" />
 
         <h2 className="text-2xl md:text-4xl font-display font-bold text-foreground mb-2">
@@ -27,15 +20,23 @@ const WelcomeSection = () => (
         </h2>
         <div className="w-16 h-px bg-primary mx-auto my-6" />
 
-        <p className="text-muted-foreground leading-relaxed text-base md:text-lg max-w-2xl mx-auto mb-4">
+        <p className="text-primary font-serif italic leading-relaxed text-base md:text-lg max-w-2xl mx-auto mb-8">
+          With a fine-art eye and a heart for storytelling, we capture love in its most natural light.
+          <br />
+          The in-between glances, gentle hands, joyful tears, and glowing moments you'll cherish
+          <br />
+          for a lifetime.
+        </p>
+
+        <p className="text-muted-foreground font-serif leading-relaxed text-base md:text-lg max-w-2xl mx-auto mb-4">
           Welcome to <span className="text-primary font-semibold">"IKAMBA WEDDING"</span> where every frame feels like forever.
         </p>
-        <p className="text-muted-foreground leading-relaxed text-base md:text-lg max-w-2xl mx-auto mb-4">
+        <p className="text-muted-foreground font-serif leading-relaxed text-base md:text-lg max-w-2xl mx-auto mb-4">
           We believe wedding photography should be more than posed smiles and pretty backdrops. 
           It should reflect the real, the raw, and the romantic.
         </p>
         <br />
-        <p className="text-primary/80 font-display italic text-lg md:text-xl mb-10">
+        <p className="text-primary/80 font-serif italic text-lg md:text-xl mb-10">
           This is your story. Let's preserve it, poetically.
         </p>
 
