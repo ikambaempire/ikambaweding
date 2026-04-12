@@ -15,7 +15,9 @@ const WelcomeSection = () => (
       >
         {/* Brand acronym */}
         <p className="text-sm md:text-base text-primary mb-8 font-serif italic">
-          The in-between glances, gentle hands, joyful tears, and glowing moments you'll cherish<br />for a lifetime.
+          With a fine-art eye and a heart for storytelling, we capture love in its most natural light<br />
+          The in-between glances, gentle hands, joyful tears, and glowing moments you'll cherish<br />
+          for a lifetime.
         </p>
 
         <img src={logo} alt="Ikamba Wedding Logo" className="w-16 h-16 md:w-20 md:h-20 object-contain mx-auto mb-6" />
