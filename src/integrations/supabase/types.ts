@@ -53,6 +53,51 @@ export type Database = {
         }
         Relationships: []
       }
+      generated_designs: {
+        Row: {
+          created_at: string
+          custom_message: string | null
+          event_date: string | null
+          event_type: string
+          generated_image_url: string | null
+          id: string
+          location: string | null
+          names: string | null
+          prompt_used: string | null
+          style: string
+          uploaded_images: string[]
+          user_identifier: string
+        }
+        Insert: {
+          created_at?: string
+          custom_message?: string | null
+          event_date?: string | null
+          event_type: string
+          generated_image_url?: string | null
+          id?: string
+          location?: string | null
+          names?: string | null
+          prompt_used?: string | null
+          style: string
+          uploaded_images?: string[]
+          user_identifier: string
+        }
+        Update: {
+          created_at?: string
+          custom_message?: string | null
+          event_date?: string | null
+          event_type?: string
+          generated_image_url?: string | null
+          id?: string
+          location?: string | null
+          names?: string | null
+          prompt_used?: string | null
+          style?: string
+          uploaded_images?: string[]
+          user_identifier?: string
+        }
+        Relationships: []
+      }
       media: {
         Row: {
           category: string
@@ -90,6 +135,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_credits: {
+        Row: {
+          created_at: string
+          credits: number
+          id: string
+          updated_at: string
+          user_identifier: string
+        }
+        Insert: {
+          created_at?: string
+          credits?: number
+          id?: string
+          updated_at?: string
+          user_identifier: string
+        }
+        Update: {
+          created_at?: string
+          credits?: number
+          id?: string
+          updated_at?: string
+          user_identifier?: string
+        }
+        Relationships: []
       }
       wedding_folders: {
         Row: {
