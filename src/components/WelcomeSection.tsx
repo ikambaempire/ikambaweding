@@ -13,20 +13,18 @@ const WelcomeSection = () => (
         transition={{ duration: 0.8 }}
         className="text-center"
       >
+        <p className="text-sm md:text-base text-primary mb-8 font-serif italic leading-relaxed">
+          With a fine-art eye and a heart for storytelling, we capture love in its most natural light<br />
+          The in-between glances, gentle hands, joyful tears, and glowing moments you'll cherish<br />
+          for a lifetime.
+        </p>
+
         <img src={logo} alt="Ikamba Wedding Logo" className="w-16 h-16 md:w-20 md:h-20 object-contain mx-auto mb-6" />
 
         <h2 className="text-2xl md:text-4xl font-display font-bold text-foreground mb-2">
           W E L C O M E
         </h2>
         <div className="w-16 h-px bg-primary mx-auto my-6" />
-
-        <p className="text-primary font-serif italic leading-relaxed text-base md:text-lg max-w-2xl mx-auto mb-8">
-          With a fine-art eye and a heart for storytelling, we capture love in its most natural light.
-          <br />
-          The in-between glances, gentle hands, joyful tears, and glowing moments you'll cherish
-          <br />
-          for a lifetime.
-        </p>
 
         <p className="text-muted-foreground font-serif leading-relaxed text-base md:text-lg max-w-2xl mx-auto mb-4">
           Welcome to <span className="text-primary font-semibold">"IKAMBA WEDDING"</span> where every frame feels like forever.
