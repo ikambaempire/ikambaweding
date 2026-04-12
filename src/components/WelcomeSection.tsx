@@ -37,7 +37,7 @@ const WelcomeSection = () => (
           We believe wedding photography should be more than posed smiles and pretty backdrops. 
           It should reflect the real, the raw, and the romantic.
         </p>
-        <p className="text-muted-foreground leading-relaxed text-base md:text-lg max-w-2xl mx-auto mb-8">
+        <p className="text-primary leading-relaxed text-base md:text-lg max-w-2xl mx-auto mb-8">
           With a fine-art eye and a heart for storytelling, we capture love in its most natural light — 
           the in-between glances, gentle hands, joyful tears, and glowing moments you'll cherish for a lifetime.
         </p>
