@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Upload, Trash2, Lock, Image, Video, LogOut, FolderPlus, Folder, Calendar, Plus, Eye, ImageIcon } from "lucide-react";
+import { ArrowLeft, Upload, Trash2, Lock, Image, Video, LogOut, FolderPlus, Folder, Calendar, Plus, Eye, ImageIcon, Tag, Package as PackageIcon, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { verifyAdmin, getMedia, addMedia, removeMedia, getFolders, createFolder, deleteFolder, updateFolderCover, getBookings, updateBookingStatus, MediaItem, WeddingFolder, BookingRequest, CATEGORIES } from "@/lib/storage";
+import { verifyAdmin, getMedia, addMedia, removeMedia, updateMediaCategory, getFolders, createFolder, deleteFolder, updateFolderCover, getBookings, updateBookingStatus, getPackages, createPackage, updatePackage, deletePackage, MediaItem, WeddingFolder, BookingRequest, Package, CATEGORIES } from "@/lib/storage";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
