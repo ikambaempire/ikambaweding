@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Play, Camera } from "lucide-react";
+import { Image as ImageIcon, Video } from "lucide-react";
 import YouTubeBackground from "@/components/YouTubeBackground";
 import AnimatedText from "@/components/AnimatedText";
 import FloatingIcons from "@/components/FloatingIcons";
@@ -55,15 +55,15 @@ const HeroSection = () => (
         className="flex flex-col sm:flex-row gap-4 justify-center"
       >
         <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-base px-8 py-6 rounded-full" asChild>
-          <Link to="/portfolio">
-            <Camera size={20} className="mr-2" />
-            View Portfolio
+          <Link to="/portfolio?type=image">
+            <ImageIcon size={20} className="mr-2" />
+            Images
           </Link>
         </Button>
         <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 font-semibold text-base px-8 py-6 rounded-full" asChild>
-          <Link to="/booking">
-            <Play size={20} className="mr-2" />
-            Book Now
+          <Link to="/portfolio?type=video">
+            <Video size={20} className="mr-2" />
+            Videos
           </Link>
         </Button>
       </motion.div>
