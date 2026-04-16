@@ -315,14 +315,29 @@ const MediaTab = ({ folders, media, onRefresh }: { folders: WeddingFolder[]; med
               ) : (
                 <video src={item.url} className="w-full aspect-square object-cover" muted preload="metadata" />
               )}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-center justify-center">
-                <Button variant="destructive" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => handleDelete(item.id)}>
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button variant="destructive" size="icon" onClick={() => handleDelete(item.id)}>
                   <Trash2 size={16} />
                 </Button>
               </div>
-              <div className="p-2">
+              <div className="p-2 space-y-1">
                 <p className="text-xs text-muted-foreground truncate">{item.title}</p>
-                <p className="text-[10px] text-primary">{item.category}</p>
+                <Select
+                  value={item.category}
+                  onValueChange={async (val) => {
+                    await updateMediaCategory(item.id, val);
+                    await onRefresh();
+                    toast({ title: "Category updated" });
+                  }}
+                >
+                  <SelectTrigger className="h-7 text-[10px] bg-background border-border">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="uncategorized">Uncategorized</SelectItem>
+                    {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           ))}
