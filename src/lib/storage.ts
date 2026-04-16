@@ -33,7 +33,16 @@ export interface BookingRequest {
   createdAt: string;
 }
 
-export const CATEGORIES = [
+export interface Package {
+  id: string;
+  name: string;
+  subtitle: string | null;
+  price: string;
+  features: string[];
+  isPopular: boolean;
+  isPublished: boolean;
+  sortOrder: number;
+}
   'Pre-shoot',
   'Introduction',
   'Church',
