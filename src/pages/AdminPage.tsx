@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Upload, Trash2, Lock, Image, Video, LogOut, FolderPlus, Folder, Calendar, Plus, Eye, ImageIcon } from "lucide-react";
+import { ArrowLeft, Upload, Trash2, Lock, Image, Video, LogOut, FolderPlus, Folder, Calendar, Plus, Eye, ImageIcon, Tag, Package as PackageIcon, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { verifyAdmin, getMedia, addMedia, removeMedia, getFolders, createFolder, deleteFolder, updateFolderCover, getBookings, updateBookingStatus, MediaItem, WeddingFolder, BookingRequest, CATEGORIES } from "@/lib/storage";
+import { verifyAdmin, getMedia, addMedia, removeMedia, updateMediaCategory, getFolders, createFolder, deleteFolder, updateFolderCover, getBookings, updateBookingStatus, getPackages, createPackage, updatePackage, deletePackage, MediaItem, WeddingFolder, BookingRequest, Package, CATEGORIES } from "@/lib/storage";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -51,16 +52,18 @@ const AdminPage = () => {
 };
 
 const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
-  const [activeTab, setActiveTab] = useState<"folders" | "media" | "bookings">("folders");
+  const [activeTab, setActiveTab] = useState<"folders" | "media" | "packages" | "bookings">("folders");
   const [folders, setFolders] = useState<WeddingFolder[]>([]);
   const [media, setMedia] = useState<MediaItem[]>([]);
+  const [packages, setPackages] = useState<Package[]>([]);
   const [bookings, setBookings] = useState<BookingRequest[]>([]);
   const { toast } = useToast();
 
   const loadData = async () => {
-    const [f, m, b] = await Promise.all([getFolders(), getMedia(), getBookings()]);
+    const [f, m, p, b] = await Promise.all([getFolders(), getMedia(), getPackages(), getBookings()]);
     setFolders(f);
     setMedia(m);
+    setPackages(p);
     setBookings(b);
   };
 
@@ -80,18 +83,20 @@ const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
 
       <div className="container py-6">
         <div className="flex gap-2 mb-6 flex-wrap">
-          {(["folders", "media", "bookings"] as const).map((tab) => (
+          {(["folders", "media", "packages", "bookings"] as const).map((tab) => (
             <Button key={tab} variant={activeTab === tab ? "default" : "outline"} size="sm" onClick={() => setActiveTab(tab)} className={`capitalize ${activeTab === tab ? "bg-primary" : "border-border text-muted-foreground"}`}>
               {tab === "folders" && <Folder size={16} className="mr-2" />}
               {tab === "media" && <Image size={16} className="mr-2" />}
+              {tab === "packages" && <PackageIcon size={16} className="mr-2" />}
               {tab === "bookings" && <Calendar size={16} className="mr-2" />}
-              {tab} ({tab === "folders" ? folders.length : tab === "media" ? media.length : bookings.length})
+              {tab} ({tab === "folders" ? folders.length : tab === "media" ? media.length : tab === "packages" ? packages.length : bookings.length})
             </Button>
           ))}
         </div>
 
         {activeTab === "folders" && <FoldersTab folders={folders} onRefresh={loadData} />}
         {activeTab === "media" && <MediaTab folders={folders} media={media} onRefresh={loadData} />}
+        {activeTab === "packages" && <PackagesTab packages={packages} onRefresh={loadData} />}
         {activeTab === "bookings" && <BookingsTab bookings={bookings} onRefresh={loadData} />}
       </div>
     </div>
@@ -310,14 +315,29 @@ const MediaTab = ({ folders, media, onRefresh }: { folders: WeddingFolder[]; med
               ) : (
                 <video src={item.url} className="w-full aspect-square object-cover" muted preload="metadata" />
               )}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-center justify-center">
-                <Button variant="destructive" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => handleDelete(item.id)}>
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button variant="destructive" size="icon" onClick={() => handleDelete(item.id)}>
                   <Trash2 size={16} />
                 </Button>
               </div>
-              <div className="p-2">
+              <div className="p-2 space-y-1">
                 <p className="text-xs text-muted-foreground truncate">{item.title}</p>
-                <p className="text-[10px] text-primary">{item.category}</p>
+                <Select
+                  value={item.category}
+                  onValueChange={async (val) => {
+                    await updateMediaCategory(item.id, val);
+                    await onRefresh();
+                    toast({ title: "Category updated" });
+                  }}
+                >
+                  <SelectTrigger className="h-7 text-[10px] bg-background border-border">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="uncategorized">Uncategorized</SelectItem>
+                    {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           ))}
@@ -365,6 +385,107 @@ const BookingsTab = ({ bookings, onRefresh }: { bookings: BookingRequest[]; onRe
                     </>
                   )}
                 </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const PackagesTab = ({ packages, onRefresh }: { packages: Package[]; onRefresh: () => void }) => {
+  const { toast } = useToast();
+  const empty: Omit<Package, 'id'> = { name: "", subtitle: "", price: "Contact Us", features: [], isPopular: false, isPublished: true, sortOrder: packages.length + 1 };
+  const [draft, setDraft] = useState<Omit<Package, 'id'>>(empty);
+  const [featuresText, setFeaturesText] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const startEdit = (p: Package) => {
+    setEditingId(p.id);
+    setDraft({ name: p.name, subtitle: p.subtitle || "", price: p.price, features: p.features, isPopular: p.isPopular, isPublished: p.isPublished, sortOrder: p.sortOrder });
+    setFeaturesText(p.features.join("\n"));
+  };
+
+  const reset = () => { setEditingId(null); setDraft(empty); setFeaturesText(""); };
+
+  const save = async () => {
+    if (!draft.name.trim()) { toast({ title: "Name is required", variant: "destructive" }); return; }
+    const payload = { ...draft, features: featuresText.split("\n").map((s) => s.trim()).filter(Boolean) };
+    try {
+      if (editingId) await updatePackage(editingId, payload);
+      else await createPackage(payload);
+      toast({ title: editingId ? "Package updated" : "Package created" });
+      reset();
+      await onRefresh();
+    } catch (err: any) {
+      toast({ title: err.message || "Failed", variant: "destructive" });
+    }
+  };
+
+  const togglePublish = async (p: Package) => {
+    await updatePackage(p.id, { isPublished: !p.isPublished });
+    await onRefresh();
+  };
+
+  const remove = async (id: string) => {
+    if (!confirm("Delete this package?")) return;
+    await deletePackage(id);
+    await onRefresh();
+    toast({ title: "Package deleted" });
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-card border border-border rounded-xl p-6">
+        <h2 className="text-lg font-semibold text-foreground mb-4">{editingId ? "Edit Package" : "Add New Package"}</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+          <Input placeholder="Package name (e.g. Premium)" value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} className="bg-background border-border" />
+          <Input placeholder="Subtitle" value={draft.subtitle || ""} onChange={(e) => setDraft({ ...draft, subtitle: e.target.value })} className="bg-background border-border" />
+          <Input placeholder="Price (e.g. $1,500 or Contact Us)" value={draft.price} onChange={(e) => setDraft({ ...draft, price: e.target.value })} className="bg-background border-border" />
+          <Input type="number" placeholder="Sort order" value={draft.sortOrder} onChange={(e) => setDraft({ ...draft, sortOrder: parseInt(e.target.value) || 0 })} className="bg-background border-border" />
+        </div>
+        <Textarea placeholder="Features (one per line)" value={featuresText} onChange={(e) => setFeaturesText(e.target.value)} className="bg-background border-border min-h-32 mb-3" />
+        <div className="flex flex-wrap items-center gap-6 mb-4">
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Switch checked={draft.isPopular} onCheckedChange={(v) => setDraft({ ...draft, isPopular: v })} /> Most Popular
+          </label>
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Switch checked={draft.isPublished} onCheckedChange={(v) => setDraft({ ...draft, isPublished: v })} /> Published
+          </label>
+        </div>
+        <div className="flex gap-2">
+          <Button onClick={save} className="bg-primary hover:bg-primary/90">{editingId ? "Save Changes" : <><Plus size={16} className="mr-1" /> Add Package</>}</Button>
+          {editingId && <Button variant="outline" onClick={reset}>Cancel</Button>}
+        </div>
+      </div>
+
+      {packages.length === 0 ? (
+        <p className="text-muted-foreground text-center py-12">No packages yet. Add your first one above.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {packages.map((p) => (
+            <div key={p.id} className={`bg-card border rounded-xl p-5 ${p.isPopular ? "border-primary" : "border-border"}`}>
+              <div className="flex items-start justify-between mb-2">
+                <div>
+                  <h3 className="font-display font-bold text-foreground text-lg flex items-center gap-2">
+                    {p.name} {p.isPopular && <Star size={14} className="text-primary fill-primary" />}
+                  </h3>
+                  {p.subtitle && <p className="text-xs text-muted-foreground">{p.subtitle}</p>}
+                </div>
+                <span className={`text-[10px] px-2 py-0.5 rounded-full ${p.isPublished ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
+                  {p.isPublished ? "Published" : "Draft"}
+                </span>
+              </div>
+              <p className="text-primary font-bold text-xl mb-3">{p.price}</p>
+              <ul className="text-xs text-muted-foreground space-y-1 mb-4 list-disc list-inside">
+                {p.features.slice(0, 4).map((f, i) => <li key={i} className="truncate">{f}</li>)}
+                {p.features.length > 4 && <li className="text-primary">+{p.features.length - 4} more</li>}
+              </ul>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={() => startEdit(p)}>Edit</Button>
+                <Button size="sm" variant="outline" onClick={() => togglePublish(p)}>{p.isPublished ? "Unpublish" : "Publish"}</Button>
+                <Button size="sm" variant="destructive" onClick={() => remove(p.id)}><Trash2 size={14} /></Button>
               </div>
             </div>
           ))}
