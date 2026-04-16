@@ -73,10 +73,22 @@ const PortfolioPage = () => {
               Our <span className="text-primary">Portfolio</span>
             </h1>
             <p className="text-primary-foreground/60 tracking-[0.3em] text-xs uppercase">
-              Browse through our beautiful wedding stories
+              {typeFilter === "image" ? "Browse our beautiful wedding photos" : typeFilter === "video" ? "Watch our cinematic wedding films" : "Browse through our beautiful wedding stories"}
             </p>
           </motion.div>
         </div>
+      </div>
+
+      <div className="container pt-8 flex flex-wrap gap-2 justify-center">
+        <Button variant={typeFilter === null ? "default" : "outline"} size="sm" onClick={() => setFilter(null)} className={typeFilter === null ? "bg-primary" : ""}>
+          All
+        </Button>
+        <Button variant={typeFilter === "image" ? "default" : "outline"} size="sm" onClick={() => setFilter("image")} className={typeFilter === "image" ? "bg-primary" : ""}>
+          <ImageLucide size={16} className="mr-2" /> Images
+        </Button>
+        <Button variant={typeFilter === "video" ? "default" : "outline"} size="sm" onClick={() => setFilter("video")} className={typeFilter === "video" ? "bg-primary" : ""}>
+          <Video size={16} className="mr-2" /> Videos
+        </Button>
       </div>
 
       <div className="py-16 md:py-24">
