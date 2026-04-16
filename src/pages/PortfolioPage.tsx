@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FolderOpen, Lock, ImageIcon, ArrowRight } from "lucide-react";
+import { FolderOpen, Lock, ImageIcon, ArrowRight, Image as ImageLucide, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getFolders, getMedia, WeddingFolder } from "@/lib/storage";
@@ -10,20 +10,26 @@ import Footer from "@/components/Footer";
 
 interface FolderWithCount extends WeddingFolder {
   mediaCount: number;
+  imageCount: number;
+  videoCount: number;
 }
 
 const PortfolioPage = () => {
   const [folders, setFolders] = useState<FolderWithCount[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const typeFilter = (searchParams.get("type") as "image" | "video" | null) || null;
 
   useEffect(() => {
     const load = async () => {
       const allFolders = await getFolders();
       const withCounts = await Promise.all(
         allFolders.map(async (f) => {
-          if (!f.isPublic) return { ...f, mediaCount: 0 };
+          if (!f.isPublic) return { ...f, mediaCount: 0, imageCount: 0, videoCount: 0 };
           const media = await getMedia(undefined, f.id);
-          return { ...f, mediaCount: media.length };
+          const imageCount = media.filter((m) => m.type === "image").length;
+          const videoCount = media.filter((m) => m.type === "video").length;
+          return { ...f, mediaCount: media.length, imageCount, videoCount };
         })
       );
       setFolders(withCounts);
@@ -32,7 +38,17 @@ const PortfolioPage = () => {
     load();
   }, []);
 
-  const publicFolders = folders.filter((f) => f.isPublic);
+  const setFilter = (val: "image" | "video" | null) => {
+    if (val) setSearchParams({ type: val });
+    else setSearchParams({});
+  };
+
+  const publicFolders = folders.filter((f) => {
+    if (!f.isPublic) return false;
+    if (typeFilter === "image") return f.imageCount > 0;
+    if (typeFilter === "video") return f.videoCount > 0;
+    return true;
+  });
   const privateFolders = folders.filter((f) => !f.isPublic);
 
   return (
@@ -57,10 +73,22 @@ const PortfolioPage = () => {
               Our <span className="text-primary">Portfolio</span>
             </h1>
             <p className="text-primary-foreground/60 tracking-[0.3em] text-xs uppercase">
-              Browse through our beautiful wedding stories
+              {typeFilter === "image" ? "Browse our beautiful wedding photos" : typeFilter === "video" ? "Watch our cinematic wedding films" : "Browse through our beautiful wedding stories"}
             </p>
           </motion.div>
         </div>
+      </div>
+
+      <div className="container pt-8 flex flex-wrap gap-2 justify-center">
+        <Button variant={typeFilter === null ? "default" : "outline"} size="sm" onClick={() => setFilter(null)} className={typeFilter === null ? "bg-primary" : ""}>
+          All
+        </Button>
+        <Button variant={typeFilter === "image" ? "default" : "outline"} size="sm" onClick={() => setFilter("image")} className={typeFilter === "image" ? "bg-primary" : ""}>
+          <ImageLucide size={16} className="mr-2" /> Images
+        </Button>
+        <Button variant={typeFilter === "video" ? "default" : "outline"} size="sm" onClick={() => setFilter("video")} className={typeFilter === "video" ? "bg-primary" : ""}>
+          <Video size={16} className="mr-2" /> Videos
+        </Button>
       </div>
 
       <div className="py-16 md:py-24">
@@ -84,7 +112,7 @@ const PortfolioPage = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.1 }}
                     >
-                      <Link to={`/portfolio/${folder.slug}`} className="block group">
+                      <Link to={`/portfolio/${folder.slug}${typeFilter ? `?tab=${typeFilter === "image" ? "photos" : "videos"}` : ""}`} className="block group">
                         <div className="relative aspect-[4/3] rounded-xl overflow-hidden">
                           {folder.coverImage ? (
                             <img
@@ -103,7 +131,7 @@ const PortfolioPage = () => {
                               {folder.name}
                             </h3>
                             <p className="text-primary-foreground/60 text-sm">
-                              {folder.mediaCount} photos & videos
+                              {typeFilter === "image" ? `${folder.imageCount} photos` : typeFilter === "video" ? `${folder.videoCount} videos` : `${folder.mediaCount} photos & videos`}
                             </p>
                           </div>
                           <div className="absolute top-4 right-4 w-10 h-10 rounded-full bg-primary-foreground/10 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
