@@ -37,7 +37,9 @@ const FeaturedWork = () => {
     load();
   }, []);
 
-  if (loading || folders.length === 0) return null;
+  if (loading) return null;
+  // If no folders, hide section
+  if (folders.length === 0) return null;
 
   return (
     <section className="py-24 md:py-32 bg-card/50">
