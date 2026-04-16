@@ -43,6 +43,8 @@ export interface Package {
   isPublished: boolean;
   sortOrder: number;
 }
+
+export const CATEGORIES = [
   'Pre-shoot',
   'Introduction',
   'Church',
