@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FolderOpen, Lock, ImageIcon, ArrowRight } from "lucide-react";
+import { FolderOpen, Lock, ImageIcon, ArrowRight, Image as ImageLucide, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getFolders, getMedia, WeddingFolder } from "@/lib/storage";
@@ -10,20 +10,26 @@ import Footer from "@/components/Footer";
 
 interface FolderWithCount extends WeddingFolder {
   mediaCount: number;
+  imageCount: number;
+  videoCount: number;
 }
 
 const PortfolioPage = () => {
   const [folders, setFolders] = useState<FolderWithCount[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const typeFilter = (searchParams.get("type") as "image" | "video" | null) || null;
 
   useEffect(() => {
     const load = async () => {
       const allFolders = await getFolders();
       const withCounts = await Promise.all(
         allFolders.map(async (f) => {
-          if (!f.isPublic) return { ...f, mediaCount: 0 };
+          if (!f.isPublic) return { ...f, mediaCount: 0, imageCount: 0, videoCount: 0 };
           const media = await getMedia(undefined, f.id);
-          return { ...f, mediaCount: media.length };
+          const imageCount = media.filter((m) => m.type === "image").length;
+          const videoCount = media.filter((m) => m.type === "video").length;
+          return { ...f, mediaCount: media.length, imageCount, videoCount };
         })
       );
       setFolders(withCounts);
@@ -32,7 +38,17 @@ const PortfolioPage = () => {
     load();
   }, []);
 
-  const publicFolders = folders.filter((f) => f.isPublic);
+  const setFilter = (val: "image" | "video" | null) => {
+    if (val) setSearchParams({ type: val });
+    else setSearchParams({});
+  };
+
+  const publicFolders = folders.filter((f) => {
+    if (!f.isPublic) return false;
+    if (typeFilter === "image") return f.imageCount > 0;
+    if (typeFilter === "video") return f.videoCount > 0;
+    return true;
+  });
   const privateFolders = folders.filter((f) => !f.isPublic);
 
   return (
