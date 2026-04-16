@@ -112,7 +112,7 @@ const PortfolioPage = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.1 }}
                     >
-                      <Link to={`/portfolio/${folder.slug}`} className="block group">
+                      <Link to={`/portfolio/${folder.slug}${typeFilter ? `?tab=${typeFilter === "image" ? "photos" : "videos"}` : ""}`} className="block group">
                         <div className="relative aspect-[4/3] rounded-xl overflow-hidden">
                           {folder.coverImage ? (
                             <img
@@ -131,7 +131,7 @@ const PortfolioPage = () => {
                               {folder.name}
                             </h3>
                             <p className="text-primary-foreground/60 text-sm">
-                              {folder.mediaCount} photos & videos
+                              {typeFilter === "image" ? `${folder.imageCount} photos` : typeFilter === "video" ? `${folder.videoCount} videos` : `${folder.mediaCount} photos & videos`}
                             </p>
                           </div>
                           <div className="absolute top-4 right-4 w-10 h-10 rounded-full bg-primary-foreground/10 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
