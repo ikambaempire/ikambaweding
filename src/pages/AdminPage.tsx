@@ -394,4 +394,105 @@ const BookingsTab = ({ bookings, onRefresh }: { bookings: BookingRequest[]; onRe
   );
 };
 
+const PackagesTab = ({ packages, onRefresh }: { packages: Package[]; onRefresh: () => void }) => {
+  const { toast } = useToast();
+  const empty: Omit<Package, 'id'> = { name: "", subtitle: "", price: "Contact Us", features: [], isPopular: false, isPublished: true, sortOrder: packages.length + 1 };
+  const [draft, setDraft] = useState<Omit<Package, 'id'>>(empty);
+  const [featuresText, setFeaturesText] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const startEdit = (p: Package) => {
+    setEditingId(p.id);
+    setDraft({ name: p.name, subtitle: p.subtitle || "", price: p.price, features: p.features, isPopular: p.isPopular, isPublished: p.isPublished, sortOrder: p.sortOrder });
+    setFeaturesText(p.features.join("\n"));
+  };
+
+  const reset = () => { setEditingId(null); setDraft(empty); setFeaturesText(""); };
+
+  const save = async () => {
+    if (!draft.name.trim()) { toast({ title: "Name is required", variant: "destructive" }); return; }
+    const payload = { ...draft, features: featuresText.split("\n").map((s) => s.trim()).filter(Boolean) };
+    try {
+      if (editingId) await updatePackage(editingId, payload);
+      else await createPackage(payload);
+      toast({ title: editingId ? "Package updated" : "Package created" });
+      reset();
+      await onRefresh();
+    } catch (err: any) {
+      toast({ title: err.message || "Failed", variant: "destructive" });
+    }
+  };
+
+  const togglePublish = async (p: Package) => {
+    await updatePackage(p.id, { isPublished: !p.isPublished });
+    await onRefresh();
+  };
+
+  const remove = async (id: string) => {
+    if (!confirm("Delete this package?")) return;
+    await deletePackage(id);
+    await onRefresh();
+    toast({ title: "Package deleted" });
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-card border border-border rounded-xl p-6">
+        <h2 className="text-lg font-semibold text-foreground mb-4">{editingId ? "Edit Package" : "Add New Package"}</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+          <Input placeholder="Package name (e.g. Premium)" value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} className="bg-background border-border" />
+          <Input placeholder="Subtitle" value={draft.subtitle || ""} onChange={(e) => setDraft({ ...draft, subtitle: e.target.value })} className="bg-background border-border" />
+          <Input placeholder="Price (e.g. $1,500 or Contact Us)" value={draft.price} onChange={(e) => setDraft({ ...draft, price: e.target.value })} className="bg-background border-border" />
+          <Input type="number" placeholder="Sort order" value={draft.sortOrder} onChange={(e) => setDraft({ ...draft, sortOrder: parseInt(e.target.value) || 0 })} className="bg-background border-border" />
+        </div>
+        <Textarea placeholder="Features (one per line)" value={featuresText} onChange={(e) => setFeaturesText(e.target.value)} className="bg-background border-border min-h-32 mb-3" />
+        <div className="flex flex-wrap items-center gap-6 mb-4">
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Switch checked={draft.isPopular} onCheckedChange={(v) => setDraft({ ...draft, isPopular: v })} /> Most Popular
+          </label>
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Switch checked={draft.isPublished} onCheckedChange={(v) => setDraft({ ...draft, isPublished: v })} /> Published
+          </label>
+        </div>
+        <div className="flex gap-2">
+          <Button onClick={save} className="bg-primary hover:bg-primary/90">{editingId ? "Save Changes" : <><Plus size={16} className="mr-1" /> Add Package</>}</Button>
+          {editingId && <Button variant="outline" onClick={reset}>Cancel</Button>}
+        </div>
+      </div>
+
+      {packages.length === 0 ? (
+        <p className="text-muted-foreground text-center py-12">No packages yet. Add your first one above.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {packages.map((p) => (
+            <div key={p.id} className={`bg-card border rounded-xl p-5 ${p.isPopular ? "border-primary" : "border-border"}`}>
+              <div className="flex items-start justify-between mb-2">
+                <div>
+                  <h3 className="font-display font-bold text-foreground text-lg flex items-center gap-2">
+                    {p.name} {p.isPopular && <Star size={14} className="text-primary fill-primary" />}
+                  </h3>
+                  {p.subtitle && <p className="text-xs text-muted-foreground">{p.subtitle}</p>}
+                </div>
+                <span className={`text-[10px] px-2 py-0.5 rounded-full ${p.isPublished ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
+                  {p.isPublished ? "Published" : "Draft"}
+                </span>
+              </div>
+              <p className="text-primary font-bold text-xl mb-3">{p.price}</p>
+              <ul className="text-xs text-muted-foreground space-y-1 mb-4 list-disc list-inside">
+                {p.features.slice(0, 4).map((f, i) => <li key={i} className="truncate">{f}</li>)}
+                {p.features.length > 4 && <li className="text-primary">+{p.features.length - 4} more</li>}
+              </ul>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={() => startEdit(p)}>Edit</Button>
+                <Button size="sm" variant="outline" onClick={() => togglePublish(p)}>{p.isPublished ? "Unpublish" : "Publish"}</Button>
+                <Button size="sm" variant="destructive" onClick={() => remove(p.id)}><Trash2 size={14} /></Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default AdminPage;
