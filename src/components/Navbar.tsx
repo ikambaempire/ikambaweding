@@ -11,7 +11,6 @@ const links = [
   { to: "/services", label: "Services" },
   { to: "/pricing", label: "Pricing" },
   { to: "/about", label: "About" },
-  { to: "/ai-invitation", label: "AI Invitation" },
   { to: "/booking", label: "Book Now" },
 ];
 

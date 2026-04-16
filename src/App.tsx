@@ -11,7 +11,6 @@ import PricingPage from "./pages/PricingPage";
 import AboutPage from "./pages/AboutPage";
 import BookingPage from "./pages/BookingPage";
 import AdminPage from "./pages/AdminPage";
-import InvitationGeneratorPage from "./pages/InvitationGeneratorPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,7 +29,6 @@ const App = () => (
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/booking" element={<BookingPage />} />
-          <Route path="/ai-invitation" element={<InvitationGeneratorPage />} />
           <Route path="/admin" element={<AdminPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
