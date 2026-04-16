@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Play, Camera, Sparkles } from "lucide-react";
+import { Play, Camera } from "lucide-react";
 import YouTubeBackground from "@/components/YouTubeBackground";
 import AnimatedText from "@/components/AnimatedText";
 import FloatingIcons from "@/components/FloatingIcons";
@@ -64,12 +64,6 @@ const HeroSection = () => (
           <Link to="/booking">
             <Play size={20} className="mr-2" />
             Book Now
-          </Link>
-        </Button>
-        <Button size="lg" className="bg-primary-foreground/20 hover:bg-primary-foreground/30 text-primary-foreground backdrop-blur-sm font-semibold text-base px-8 py-6 rounded-full border border-primary-foreground/20" asChild>
-          <Link to="/ai-invitation">
-            <Sparkles size={20} className="mr-2" />
-            AI Invitation
           </Link>
         </Button>
       </motion.div>
