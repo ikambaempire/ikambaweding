@@ -177,3 +177,52 @@ export const getBookings = async (): Promise<BookingRequest[]> => {
 export const updateBookingStatus = async (id: string, status: string): Promise<void> => {
   await supabase.from('bookings').update({ status }).eq('id', id);
 };
+
+// ---- Packages ----
+
+const mapPackage = (p: any): Package => ({
+  id: p.id, name: p.name, subtitle: p.subtitle, price: p.price,
+  features: p.features || [], isPopular: p.is_popular,
+  isPublished: p.is_published, sortOrder: p.sort_order,
+});
+
+export const getPackages = async (publishedOnly = false): Promise<Package[]> => {
+  let q = supabase.from('packages').select('*').order('sort_order', { ascending: true });
+  if (publishedOnly) q = q.eq('is_published', true);
+  const { data, error } = await q;
+  if (error) { console.error(error); return []; }
+  return (data || []).map(mapPackage);
+};
+
+export const createPackage = async (p: Omit<Package, 'id'>): Promise<void> => {
+  const { error } = await supabase.from('packages').insert({
+    name: p.name, subtitle: p.subtitle, price: p.price, features: p.features,
+    is_popular: p.isPopular, is_published: p.isPublished, sort_order: p.sortOrder,
+  });
+  if (error) throw error;
+};
+
+export const updatePackage = async (id: string, p: Partial<Package>): Promise<void> => {
+  const payload: any = { updated_at: new Date().toISOString() };
+  if (p.name !== undefined) payload.name = p.name;
+  if (p.subtitle !== undefined) payload.subtitle = p.subtitle;
+  if (p.price !== undefined) payload.price = p.price;
+  if (p.features !== undefined) payload.features = p.features;
+  if (p.isPopular !== undefined) payload.is_popular = p.isPopular;
+  if (p.isPublished !== undefined) payload.is_published = p.isPublished;
+  if (p.sortOrder !== undefined) payload.sort_order = p.sortOrder;
+  const { error } = await supabase.from('packages').update(payload).eq('id', id);
+  if (error) throw error;
+};
+
+export const deletePackage = async (id: string): Promise<void> => {
+  await supabase.from('packages').delete().eq('id', id);
+};
+
+// ---- Media category update ----
+export const updateMediaCategory = async (id: string, category: string, folderId?: string): Promise<void> => {
+  const payload: any = { category };
+  if (folderId !== undefined) payload.folder_id = folderId;
+  const { error } = await supabase.from('media').update(payload).eq('id', id);
+  if (error) throw error;
+};
