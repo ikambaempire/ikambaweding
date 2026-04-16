@@ -52,16 +52,18 @@ const AdminPage = () => {
 };
 
 const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
-  const [activeTab, setActiveTab] = useState<"folders" | "media" | "bookings">("folders");
+  const [activeTab, setActiveTab] = useState<"folders" | "media" | "packages" | "bookings">("folders");
   const [folders, setFolders] = useState<WeddingFolder[]>([]);
   const [media, setMedia] = useState<MediaItem[]>([]);
+  const [packages, setPackages] = useState<Package[]>([]);
   const [bookings, setBookings] = useState<BookingRequest[]>([]);
   const { toast } = useToast();
 
   const loadData = async () => {
-    const [f, m, b] = await Promise.all([getFolders(), getMedia(), getBookings()]);
+    const [f, m, p, b] = await Promise.all([getFolders(), getMedia(), getPackages(), getBookings()]);
     setFolders(f);
     setMedia(m);
+    setPackages(p);
     setBookings(b);
   };
 
@@ -81,18 +83,20 @@ const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
 
       <div className="container py-6">
         <div className="flex gap-2 mb-6 flex-wrap">
-          {(["folders", "media", "bookings"] as const).map((tab) => (
+          {(["folders", "media", "packages", "bookings"] as const).map((tab) => (
             <Button key={tab} variant={activeTab === tab ? "default" : "outline"} size="sm" onClick={() => setActiveTab(tab)} className={`capitalize ${activeTab === tab ? "bg-primary" : "border-border text-muted-foreground"}`}>
               {tab === "folders" && <Folder size={16} className="mr-2" />}
               {tab === "media" && <Image size={16} className="mr-2" />}
+              {tab === "packages" && <PackageIcon size={16} className="mr-2" />}
               {tab === "bookings" && <Calendar size={16} className="mr-2" />}
-              {tab} ({tab === "folders" ? folders.length : tab === "media" ? media.length : bookings.length})
+              {tab} ({tab === "folders" ? folders.length : tab === "media" ? media.length : tab === "packages" ? packages.length : bookings.length})
             </Button>
           ))}
         </div>
 
         {activeTab === "folders" && <FoldersTab folders={folders} onRefresh={loadData} />}
         {activeTab === "media" && <MediaTab folders={folders} media={media} onRefresh={loadData} />}
+        {activeTab === "packages" && <PackagesTab packages={packages} onRefresh={loadData} />}
         {activeTab === "bookings" && <BookingsTab bookings={bookings} onRefresh={loadData} />}
       </div>
     </div>
