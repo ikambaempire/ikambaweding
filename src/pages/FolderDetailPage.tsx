@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Play, X, ImageIcon, FolderOpen, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,8 @@ import Footer from "@/components/Footer";
 
 const FolderDetailPage = () => {
   const { slug } = useParams<{ slug: string }>();
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get("tab") === "videos" ? "videos" : "photos";
   const [folder, setFolder] = useState<WeddingFolder | null>(null);
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -114,7 +116,7 @@ const FolderDetailPage = () => {
           )}
 
           {/* Tabs for Photos / Videos */}
-          <Tabs defaultValue="photos" className="w-full">
+          <Tabs defaultValue={initialTab} className="w-full">
             <TabsList className="mb-6 bg-card border border-border">
               <TabsTrigger value="photos" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <ImageIcon size={16} className="mr-2" /> Photos ({images.length})
