@@ -166,3 +166,57 @@ export const getBookings = async (): Promise<BookingRequest[]> => {
 export const updateBookingStatus = async (id: string, status: string): Promise<void> => {
   await supabase.from('bookings').update({ status }).eq('id', id);
 };
+
+// ---- Packages ----
+
+export interface Package {
+  id: string;
+  name: string;
+  subtitle: string | null;
+  price: string;
+  features: string[];
+  isPopular: boolean;
+  isPublished: boolean;
+  sortOrder: number;
+}
+
+const mapPkg = (p: any): Package => ({
+  id: p.id, name: p.name, subtitle: p.subtitle, price: p.price,
+  features: p.features || [], isPopular: p.is_popular,
+  isPublished: p.is_published, sortOrder: p.sort_order,
+});
+
+export const getPackages = async (publishedOnly = false): Promise<Package[]> => {
+  let q = supabase.from('packages').select('*').order('sort_order', { ascending: true });
+  if (publishedOnly) q = q.eq('is_published', true);
+  const { data, error } = await q;
+  if (error) { console.error(error); return []; }
+  return (data || []).map(mapPkg);
+};
+
+export const createPackage = async (pkg: Omit<Package, 'id'>): Promise<Package> => {
+  const { data, error } = await supabase.from('packages').insert({
+    name: pkg.name, subtitle: pkg.subtitle, price: pkg.price,
+    features: pkg.features, is_popular: pkg.isPopular,
+    is_published: pkg.isPublished, sort_order: pkg.sortOrder,
+  }).select().single();
+  if (error) throw error;
+  return mapPkg(data);
+};
+
+export const updatePackage = async (id: string, pkg: Partial<Omit<Package, 'id'>>): Promise<void> => {
+  const upd: any = {};
+  if (pkg.name !== undefined) upd.name = pkg.name;
+  if (pkg.subtitle !== undefined) upd.subtitle = pkg.subtitle;
+  if (pkg.price !== undefined) upd.price = pkg.price;
+  if (pkg.features !== undefined) upd.features = pkg.features;
+  if (pkg.isPopular !== undefined) upd.is_popular = pkg.isPopular;
+  if (pkg.isPublished !== undefined) upd.is_published = pkg.isPublished;
+  if (pkg.sortOrder !== undefined) upd.sort_order = pkg.sortOrder;
+  const { error } = await supabase.from('packages').update(upd).eq('id', id);
+  if (error) throw error;
+};
+
+export const deletePackage = async (id: string): Promise<void> => {
+  await supabase.from('packages').delete().eq('id', id);
+};
