@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Upload, Trash2, Lock, Image, Video, LogOut, FolderPlus, Folder, Calendar, Plus, Eye, ImageIcon } from "lucide-react";
+import { ArrowLeft, Upload, Trash2, Lock, Image, Video, LogOut, FolderPlus, Folder, Calendar, Plus, Eye, ImageIcon, Package as PackageIcon, Star, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { verifyAdmin, getMedia, addMedia, removeMedia, getFolders, createFolder, deleteFolder, updateFolderCover, getBookings, updateBookingStatus, MediaItem, WeddingFolder, BookingRequest, CATEGORIES } from "@/lib/storage";
+import { verifyAdmin, getMedia, addMedia, removeMedia, getFolders, createFolder, deleteFolder, updateFolderCover, getBookings, updateBookingStatus, getPackages, createPackage, updatePackage, deletePackage, MediaItem, WeddingFolder, BookingRequest, Package, CATEGORIES } from "@/lib/storage";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -51,17 +52,19 @@ const AdminPage = () => {
 };
 
 const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
-  const [activeTab, setActiveTab] = useState<"folders" | "media" | "bookings">("folders");
+  const [activeTab, setActiveTab] = useState<"folders" | "media" | "bookings" | "packages">("folders");
   const [folders, setFolders] = useState<WeddingFolder[]>([]);
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [bookings, setBookings] = useState<BookingRequest[]>([]);
+  const [packages, setPackages] = useState<Package[]>([]);
   const { toast } = useToast();
 
   const loadData = async () => {
-    const [f, m, b] = await Promise.all([getFolders(), getMedia(), getBookings()]);
+    const [f, m, b, p] = await Promise.all([getFolders(), getMedia(), getBookings(), getPackages(false)]);
     setFolders(f);
     setMedia(m);
     setBookings(b);
+    setPackages(p);
   };
 
   useEffect(() => { loadData(); }, []);
@@ -80,18 +83,20 @@ const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
 
       <div className="container py-6">
         <div className="flex gap-2 mb-6 flex-wrap">
-          {(["folders", "media", "bookings"] as const).map((tab) => (
+          {(["folders", "media", "packages", "bookings"] as const).map((tab) => (
             <Button key={tab} variant={activeTab === tab ? "default" : "outline"} size="sm" onClick={() => setActiveTab(tab)} className={`capitalize ${activeTab === tab ? "bg-primary" : "border-border text-muted-foreground"}`}>
               {tab === "folders" && <Folder size={16} className="mr-2" />}
               {tab === "media" && <Image size={16} className="mr-2" />}
+              {tab === "packages" && <PackageIcon size={16} className="mr-2" />}
               {tab === "bookings" && <Calendar size={16} className="mr-2" />}
-              {tab} ({tab === "folders" ? folders.length : tab === "media" ? media.length : bookings.length})
+              {tab} ({tab === "folders" ? folders.length : tab === "media" ? media.length : tab === "packages" ? packages.length : bookings.length})
             </Button>
           ))}
         </div>
 
         {activeTab === "folders" && <FoldersTab folders={folders} onRefresh={loadData} />}
         {activeTab === "media" && <MediaTab folders={folders} media={media} onRefresh={loadData} />}
+        {activeTab === "packages" && <PackagesTab packages={packages} onRefresh={loadData} />}
         {activeTab === "bookings" && <BookingsTab bookings={bookings} onRefresh={loadData} />}
       </div>
     </div>
