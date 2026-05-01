@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Upload, Trash2, Lock, Image, Video, LogOut, FolderPlus, Folder, Calendar, Plus, Eye, ImageIcon } from "lucide-react";
+import { ArrowLeft, Upload, Trash2, Lock, Image, Video, LogOut, FolderPlus, Folder, Calendar, Plus, Eye, ImageIcon, Package as PackageIcon, Star, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { verifyAdmin, getMedia, addMedia, removeMedia, getFolders, createFolder, deleteFolder, updateFolderCover, getBookings, updateBookingStatus, MediaItem, WeddingFolder, BookingRequest, CATEGORIES } from "@/lib/storage";
+import { verifyAdmin, getMedia, addMedia, removeMedia, getFolders, createFolder, deleteFolder, updateFolderCover, getBookings, updateBookingStatus, getPackages, createPackage, updatePackage, deletePackage, MediaItem, WeddingFolder, BookingRequest, Package, CATEGORIES } from "@/lib/storage";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -51,17 +52,19 @@ const AdminPage = () => {
 };
 
 const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
-  const [activeTab, setActiveTab] = useState<"folders" | "media" | "bookings">("folders");
+  const [activeTab, setActiveTab] = useState<"folders" | "media" | "bookings" | "packages">("folders");
   const [folders, setFolders] = useState<WeddingFolder[]>([]);
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [bookings, setBookings] = useState<BookingRequest[]>([]);
+  const [packages, setPackages] = useState<Package[]>([]);
   const { toast } = useToast();
 
   const loadData = async () => {
-    const [f, m, b] = await Promise.all([getFolders(), getMedia(), getBookings()]);
+    const [f, m, b, p] = await Promise.all([getFolders(), getMedia(), getBookings(), getPackages(false)]);
     setFolders(f);
     setMedia(m);
     setBookings(b);
+    setPackages(p);
   };
 
   useEffect(() => { loadData(); }, []);
@@ -80,18 +83,20 @@ const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
 
       <div className="container py-6">
         <div className="flex gap-2 mb-6 flex-wrap">
-          {(["folders", "media", "bookings"] as const).map((tab) => (
+          {(["folders", "media", "packages", "bookings"] as const).map((tab) => (
             <Button key={tab} variant={activeTab === tab ? "default" : "outline"} size="sm" onClick={() => setActiveTab(tab)} className={`capitalize ${activeTab === tab ? "bg-primary" : "border-border text-muted-foreground"}`}>
               {tab === "folders" && <Folder size={16} className="mr-2" />}
               {tab === "media" && <Image size={16} className="mr-2" />}
+              {tab === "packages" && <PackageIcon size={16} className="mr-2" />}
               {tab === "bookings" && <Calendar size={16} className="mr-2" />}
-              {tab} ({tab === "folders" ? folders.length : tab === "media" ? media.length : bookings.length})
+              {tab} ({tab === "folders" ? folders.length : tab === "media" ? media.length : tab === "packages" ? packages.length : bookings.length})
             </Button>
           ))}
         </div>
 
         {activeTab === "folders" && <FoldersTab folders={folders} onRefresh={loadData} />}
         {activeTab === "media" && <MediaTab folders={folders} media={media} onRefresh={loadData} />}
+        {activeTab === "packages" && <PackagesTab packages={packages} onRefresh={loadData} />}
         {activeTab === "bookings" && <BookingsTab bookings={bookings} onRefresh={loadData} />}
       </div>
     </div>
@@ -321,6 +326,160 @@ const MediaTab = ({ folders, media, onRefresh }: { folders: WeddingFolder[]; med
               </div>
             </div>
           ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const PackagesTab = ({ packages, onRefresh }: { packages: Package[]; onRefresh: () => void }) => {
+  const { toast } = useToast();
+  const [creating, setCreating] = useState(false);
+  const [draft, setDraft] = useState<Omit<Package, "id">>({
+    name: "", subtitle: "", price: "Contact Us", features: [],
+    isPopular: false, isPublished: true, sortOrder: packages.length + 1,
+  });
+  const [featuresText, setFeaturesText] = useState("");
+
+  const handleCreate = async () => {
+    if (!draft.name.trim()) { toast({ title: "Enter a package name", variant: "destructive" }); return; }
+    try {
+      await createPackage({
+        ...draft,
+        features: featuresText.split("\n").map((s) => s.trim()).filter(Boolean),
+      });
+      setDraft({ name: "", subtitle: "", price: "Contact Us", features: [], isPopular: false, isPublished: true, sortOrder: packages.length + 2 });
+      setFeaturesText("");
+      setCreating(false);
+      await onRefresh();
+      toast({ title: "Package created!" });
+    } catch (err: any) {
+      toast({ title: err.message || "Failed", variant: "destructive" });
+    }
+  };
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-4">
+        <p className="text-sm text-muted-foreground">Manage the packages shown on your pricing page. Toggle publish to control visibility.</p>
+        <Button onClick={() => setCreating(!creating)} className="bg-primary hover:bg-primary/90">
+          <Plus size={18} className="mr-2" /> New Package
+        </Button>
+      </div>
+
+      {creating && (
+        <div className="bg-card border border-primary/30 rounded-xl p-6 mb-6 space-y-3">
+          <h3 className="font-semibold text-foreground">Create Package</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Input placeholder="Name (e.g. Premium)" value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} className="bg-background border-border" />
+            <Input placeholder="Subtitle" value={draft.subtitle || ""} onChange={(e) => setDraft({ ...draft, subtitle: e.target.value })} className="bg-background border-border" />
+            <Input placeholder="Price (e.g. $1,500 or Contact Us)" value={draft.price} onChange={(e) => setDraft({ ...draft, price: e.target.value })} className="bg-background border-border" />
+            <Input type="number" placeholder="Sort order" value={draft.sortOrder} onChange={(e) => setDraft({ ...draft, sortOrder: parseInt(e.target.value) || 0 })} className="bg-background border-border" />
+          </div>
+          <Textarea placeholder="Features — one per line" value={featuresText} onChange={(e) => setFeaturesText(e.target.value)} rows={6} className="bg-background border-border" />
+          <div className="flex flex-wrap items-center gap-6">
+            <label className="flex items-center gap-2 text-sm text-muted-foreground"><Switch checked={draft.isPopular} onCheckedChange={(v) => setDraft({ ...draft, isPopular: v })} /> Most Popular</label>
+            <label className="flex items-center gap-2 text-sm text-muted-foreground"><Switch checked={draft.isPublished} onCheckedChange={(v) => setDraft({ ...draft, isPublished: v })} /> Published</label>
+          </div>
+          <div className="flex gap-2">
+            <Button onClick={handleCreate} className="bg-primary hover:bg-primary/90"><Save size={16} className="mr-2" />Create</Button>
+            <Button variant="outline" onClick={() => setCreating(false)}>Cancel</Button>
+          </div>
+        </div>
+      )}
+
+      {packages.length === 0 ? (
+        <p className="text-muted-foreground text-center py-12">No packages yet.</p>
+      ) : (
+        <div className="space-y-4">
+          {packages.map((pkg) => (
+            <PackageCard key={pkg.id} pkg={pkg} onRefresh={onRefresh} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const PackageCard = ({ pkg, onRefresh }: { pkg: Package; onRefresh: () => void }) => {
+  const { toast } = useToast();
+  const [editing, setEditing] = useState(false);
+  const [name, setName] = useState(pkg.name);
+  const [subtitle, setSubtitle] = useState(pkg.subtitle || "");
+  const [price, setPrice] = useState(pkg.price);
+  const [featuresText, setFeaturesText] = useState(pkg.features.join("\n"));
+  const [isPopular, setIsPopular] = useState(pkg.isPopular);
+  const [isPublished, setIsPublished] = useState(pkg.isPublished);
+  const [sortOrder, setSortOrder] = useState(pkg.sortOrder);
+
+  const save = async () => {
+    try {
+      await updatePackage(pkg.id, {
+        name, subtitle, price, isPopular, isPublished, sortOrder,
+        features: featuresText.split("\n").map((s) => s.trim()).filter(Boolean),
+      });
+      setEditing(false);
+      await onRefresh();
+      toast({ title: "Package saved!" });
+    } catch (err: any) {
+      toast({ title: err.message || "Failed", variant: "destructive" });
+    }
+  };
+
+  const togglePublish = async () => {
+    await updatePackage(pkg.id, { isPublished: !pkg.isPublished });
+    await onRefresh();
+    toast({ title: pkg.isPublished ? "Unpublished" : "Published!" });
+  };
+
+  const remove = async () => {
+    if (!confirm(`Delete "${pkg.name}" package?`)) return;
+    await deletePackage(pkg.id);
+    await onRefresh();
+    toast({ title: "Package deleted" });
+  };
+
+  return (
+    <div className={`bg-card border rounded-xl p-5 ${pkg.isPopular ? "border-primary/40" : "border-border"}`}>
+      {!editing ? (
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="font-display font-semibold text-lg text-foreground">{pkg.name}</h3>
+              {pkg.isPopular && <span className="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded-full flex items-center gap-1"><Star size={10} /> Popular</span>}
+              <span className={`text-[10px] px-2 py-0.5 rounded-full ${pkg.isPublished ? "bg-green-500/20 text-green-400" : "bg-muted text-muted-foreground"}`}>
+                {pkg.isPublished ? "Published" : "Draft"}
+              </span>
+            </div>
+            {pkg.subtitle && <p className="text-sm text-muted-foreground">{pkg.subtitle}</p>}
+            <p className="text-primary font-bold mt-1">{pkg.price}</p>
+            <ul className="mt-3 grid sm:grid-cols-2 gap-1 text-xs text-muted-foreground">
+              {pkg.features.map((f, i) => <li key={i}>• {f}</li>)}
+            </ul>
+          </div>
+          <div className="flex gap-2 flex-shrink-0">
+            <Button size="sm" variant="outline" onClick={togglePublish}>{pkg.isPublished ? "Unpublish" : "Publish"}</Button>
+            <Button size="sm" onClick={() => setEditing(true)} className="bg-primary hover:bg-primary/90">Edit</Button>
+            <Button size="sm" variant="destructive" onClick={remove}><Trash2 size={14} /></Button>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" className="bg-background border-border" />
+            <Input value={subtitle} onChange={(e) => setSubtitle(e.target.value)} placeholder="Subtitle" className="bg-background border-border" />
+            <Input value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Price" className="bg-background border-border" />
+            <Input type="number" value={sortOrder} onChange={(e) => setSortOrder(parseInt(e.target.value) || 0)} placeholder="Sort order" className="bg-background border-border" />
+          </div>
+          <Textarea value={featuresText} onChange={(e) => setFeaturesText(e.target.value)} rows={6} placeholder="Features (one per line)" className="bg-background border-border" />
+          <div className="flex flex-wrap items-center gap-6">
+            <label className="flex items-center gap-2 text-sm text-muted-foreground"><Switch checked={isPopular} onCheckedChange={setIsPopular} /> Most Popular</label>
+            <label className="flex items-center gap-2 text-sm text-muted-foreground"><Switch checked={isPublished} onCheckedChange={setIsPublished} /> Published</label>
+          </div>
+          <div className="flex gap-2">
+            <Button onClick={save} className="bg-primary hover:bg-primary/90"><Save size={16} className="mr-2" />Save</Button>
+            <Button variant="outline" onClick={() => setEditing(false)}>Cancel</Button>
+          </div>
         </div>
       )}
     </div>

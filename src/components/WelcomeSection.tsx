@@ -1,6 +1,4 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.png";
 
 const WelcomeSection = () => (
@@ -25,26 +23,6 @@ const WelcomeSection = () => (
           W E L C O M E
         </h2>
         <div className="w-16 h-px bg-primary mx-auto my-6" />
-
-        <p className="text-muted-foreground font-serif leading-relaxed text-base md:text-lg max-w-2xl mx-auto mb-4">
-          Welcome to <span className="text-primary font-semibold">"IKAMBA WEDDING"</span> where every frame feels like forever.
-        </p>
-        <p className="text-muted-foreground font-serif leading-relaxed text-base md:text-lg max-w-2xl mx-auto mb-4">
-          We believe wedding photography should be more than posed smiles and pretty backdrops. 
-          It should reflect the real, the raw, and the romantic.
-        </p>
-        <br />
-        <p className="text-primary/80 font-serif italic text-lg md:text-xl mb-10">
-          This is your story. Let's preserve it, poetically.
-        </p>
-
-        <Button
-          asChild
-          variant="outline"
-          className="border-primary text-primary hover:bg-primary/10 rounded-none px-10 py-6 tracking-widest text-xs uppercase"
-        >
-          <Link to="/about">Learn More</Link>
-        </Button>
       </motion.div>
     </div>
   </section>
