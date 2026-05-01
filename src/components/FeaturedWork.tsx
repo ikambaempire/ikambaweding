@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { ArrowRight, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getFolders, getMedia, WeddingFolder, MediaItem } from "@/lib/storage";
-import fallbackImage from "@/assets/couple-1.jpg";
 
 interface FolderWithPreview extends WeddingFolder {
   previewImages: string[];
@@ -37,9 +36,7 @@ const FeaturedWork = () => {
     load();
   }, []);
 
-  if (loading) return null;
-  // If no folders, hide section
-  if (folders.length === 0) return null;
+  if (loading || folders.length === 0) return null;
 
   return (
     <section className="py-24 md:py-32 bg-card/50">
@@ -67,11 +64,17 @@ const FeaturedWork = () => {
             >
               <Link to={`/portfolio/${folder.slug}`} className="group block">
                 <div className="relative aspect-[4/3] rounded-xl overflow-hidden">
-                  <img
-                    src={folder.coverImage || folder.previewImages[0] || fallbackImage}
-                    alt={folder.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
+                  {folder.coverImage || folder.previewImages[0] ? (
+                    <img
+                      src={folder.coverImage || folder.previewImages[0]}
+                      alt={folder.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-muted flex items-center justify-center">
+                      <ImageIcon size={48} className="text-muted-foreground/30" />
+                    </div>
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
                     <h3 className="text-xl md:text-2xl font-display font-bold text-primary-foreground mb-1">
