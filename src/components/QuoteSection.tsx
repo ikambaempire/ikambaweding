@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
+import quoteBg from "@/assets/wedding-7.jpg";
 
 const QuoteSection = () => (
   <section className="relative py-32 md:py-40 overflow-hidden">
     {/* Background image */}
     <div className="absolute inset-0">
       <img
-        src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=1920&q=80"
+        src={quoteBg}
         alt="Wedding atmosphere"
         className="w-full h-full object-cover"
       />

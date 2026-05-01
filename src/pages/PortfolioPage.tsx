@@ -5,6 +5,7 @@ import { FolderOpen, Lock, ImageIcon, ArrowRight, Image as ImageLucide, Video } 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getFolders, getMedia, WeddingFolder } from "@/lib/storage";
+import portfolioHero from "@/assets/wedding-3.jpg";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -58,7 +59,7 @@ const PortfolioPage = () => {
       {/* Hero banner */}
       <div className="relative h-[40vh] md:h-[50vh] overflow-hidden">
         <img
-          src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1920&q=80"
+          src={portfolioHero}
           alt="Portfolio"
           className="w-full h-full object-cover"
         />
