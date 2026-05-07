@@ -27,7 +27,7 @@ const HeroSection = () => (
         transition={{ duration: 0.8, delay: 0.3 }}
         className="text-4xl sm:text-5xl md:text-7xl font-display font-bold text-primary-foreground leading-tight mb-2"
       >
-        iKAMBA <span className="text-primary">WEDDING</span>
+        iKAMBA <span className="text-primary">Weddings</span>
       </motion.h1>
 
       <motion.p
@@ -57,7 +57,7 @@ const HeroSection = () => (
         <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-base px-8 py-6 rounded-full" asChild>
           <Link to="/portfolio?type=image">
             <ImageIcon size={20} className="mr-2" />
-            Images
+            Photos
           </Link>
         </Button>
         <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 font-semibold text-base px-8 py-6 rounded-full" asChild>
