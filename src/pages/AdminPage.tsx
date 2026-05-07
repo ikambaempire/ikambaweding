@@ -336,7 +336,7 @@ const MediaTab = ({ folders, media, onRefresh }: { folders: WeddingFolder[]; med
       <div className="flex gap-2 mb-6">
         {(["all", "image", "video"] as const).map((t) => (
           <Button key={t} variant={filterType === t ? "default" : "outline"} size="sm" onClick={() => setFilterType(t)} className={`capitalize ${filterType === t ? "bg-primary" : "border-border text-muted-foreground"}`}>
-            {t === "all" ? "All" : t === "image" ? "Images" : "Videos"} ({t === "all" ? media.length : media.filter((m) => m.type === t).length})
+            {t === "all" ? "All" : t === "image" ? "Photos" : "Videos"} ({t === "all" ? media.length : media.filter((m) => m.type === t).length})
           </Button>
         ))}
       </div>

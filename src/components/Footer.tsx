@@ -50,9 +50,6 @@ const Footer = () => (
         <p className="text-xs text-muted-foreground flex items-center gap-1">
           Made with <Heart size={12} className="text-primary" /> in Rwanda
         </p>
-        <Link to="/admin" className="text-[10px] text-muted-foreground/30 hover:text-muted-foreground transition-colors">
-          ·
-        </Link>
       </div>
     </div>
   </footer>

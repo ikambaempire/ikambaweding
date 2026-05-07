@@ -85,7 +85,7 @@ const PortfolioPage = () => {
           All
         </Button>
         <Button variant={typeFilter === "image" ? "default" : "outline"} size="sm" onClick={() => setFilter("image")} className={typeFilter === "image" ? "bg-primary" : ""}>
-          <ImageLucide size={16} className="mr-2" /> Images
+          <ImageLucide size={16} className="mr-2" /> Photos
         </Button>
         <Button variant={typeFilter === "video" ? "default" : "outline"} size="sm" onClick={() => setFilter("video")} className={typeFilter === "video" ? "bg-primary" : ""}>
           <Video size={16} className="mr-2" /> Videos
