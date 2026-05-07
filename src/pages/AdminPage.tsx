@@ -51,6 +51,40 @@ const AdminPage = () => {
   return <AdminDashboard onLogout={() => setIsAuth(false)} />;
 };
 
+const ChangePasswordButton = () => {
+  const [open, setOpen] = useState(false);
+  const [current, setCurrent] = useState("");
+  const [next, setNext] = useState("");
+  const { toast } = useToast();
+
+  const handleSave = () => {
+    if (!verifyAdmin(current)) { toast({ title: "Current password is wrong", variant: "destructive" }); return; }
+    if (next.length < 4) { toast({ title: "New password too short", variant: "destructive" }); return; }
+    setAdminPassword(next);
+    setOpen(false); setCurrent(""); setNext("");
+    toast({ title: "Password updated" });
+  };
+
+  if (!open) {
+    return (
+      <Button variant="ghost" size="sm" onClick={() => setOpen(true)} className="text-muted-foreground">
+        <Lock size={16} className="mr-1" /> Change Password
+      </Button>
+    );
+  }
+  return (
+    <div className="absolute right-4 top-16 bg-card border border-border rounded-xl p-4 w-72 z-30 shadow-xl space-y-2">
+      <p className="text-sm font-semibold text-foreground">Change Password</p>
+      <Input type="password" placeholder="Current password" value={current} onChange={(e) => setCurrent(e.target.value)} className="bg-background border-border" />
+      <Input type="password" placeholder="New password" value={next} onChange={(e) => setNext(e.target.value)} className="bg-background border-border" />
+      <div className="flex gap-2 justify-end">
+        <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>Cancel</Button>
+        <Button size="sm" onClick={handleSave} className="bg-primary hover:bg-primary/90">Save</Button>
+      </div>
+    </div>
+  );
+};
+
 const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
   const [activeTab, setActiveTab] = useState<"folders" | "media" | "bookings" | "packages">("folders");
   const [folders, setFolders] = useState<WeddingFolder[]>([]);
