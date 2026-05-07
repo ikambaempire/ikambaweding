@@ -30,11 +30,11 @@ const Footer = () => (
         <div>
           <h4 className="font-display font-semibold text-foreground mb-4">Contact</h4>
           <div className="flex flex-col gap-3 text-sm text-muted-foreground">
-            <a href="tel:+250780000000" className="flex items-center gap-2 hover:text-primary transition-colors">
-              <Phone size={14} /> +250 780 000 000
+            <a href="tel:+250796889527" className="flex items-center gap-2 hover:text-primary transition-colors">
+              <Phone size={14} /> 0796 889 527
             </a>
-            <a href="mailto:info@ikambawedding.com" className="flex items-center gap-2 hover:text-primary transition-colors">
-              <Mail size={14} /> info@ikambawedding.com
+            <a href="mailto:connect@ikamba.africa" className="flex items-center gap-2 hover:text-primary transition-colors">
+              <Mail size={14} /> connect@ikamba.africa
             </a>
             <span className="flex items-center gap-2">
               <MapPin size={14} /> Kigali, Rwanda
@@ -50,6 +50,9 @@ const Footer = () => (
         <p className="text-xs text-muted-foreground flex items-center gap-1">
           Made with <Heart size={12} className="text-primary" /> in Rwanda
         </p>
+        <Link to="/admin" className="text-[10px] text-muted-foreground/30 hover:text-muted-foreground transition-colors">
+          ·
+        </Link>
       </div>
     </div>
   </footer>
