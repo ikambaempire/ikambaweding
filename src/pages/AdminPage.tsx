@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { verifyAdmin, getMedia, addMedia, removeMedia, getFolders, createFolder, deleteFolder, updateFolderCover, getBookings, updateBookingStatus, getPackages, createPackage, updatePackage, deletePackage, MediaItem, WeddingFolder, BookingRequest, Package, CATEGORIES } from "@/lib/storage";
+import { verifyAdmin, setAdminPassword, getMedia, addMedia, removeMedia, getFolders, createFolder, deleteFolder, updateFolderCover, getBookings, updateBookingStatus, getPackages, createPackage, updatePackage, deletePackage, MediaItem, WeddingFolder, BookingRequest, Package, CATEGORIES } from "@/lib/storage";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -51,6 +51,40 @@ const AdminPage = () => {
   return <AdminDashboard onLogout={() => setIsAuth(false)} />;
 };
 
+const ChangePasswordButton = () => {
+  const [open, setOpen] = useState(false);
+  const [current, setCurrent] = useState("");
+  const [next, setNext] = useState("");
+  const { toast } = useToast();
+
+  const handleSave = () => {
+    if (!verifyAdmin(current)) { toast({ title: "Current password is wrong", variant: "destructive" }); return; }
+    if (next.length < 4) { toast({ title: "New password too short", variant: "destructive" }); return; }
+    setAdminPassword(next);
+    setOpen(false); setCurrent(""); setNext("");
+    toast({ title: "Password updated" });
+  };
+
+  if (!open) {
+    return (
+      <Button variant="ghost" size="sm" onClick={() => setOpen(true)} className="text-muted-foreground">
+        <Lock size={16} className="mr-1" /> Change Password
+      </Button>
+    );
+  }
+  return (
+    <div className="absolute right-4 top-16 bg-card border border-border rounded-xl p-4 w-72 z-30 shadow-xl space-y-2">
+      <p className="text-sm font-semibold text-foreground">Change Password</p>
+      <Input type="password" placeholder="Current password" value={current} onChange={(e) => setCurrent(e.target.value)} className="bg-background border-border" />
+      <Input type="password" placeholder="New password" value={next} onChange={(e) => setNext(e.target.value)} className="bg-background border-border" />
+      <div className="flex gap-2 justify-end">
+        <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>Cancel</Button>
+        <Button size="sm" onClick={handleSave} className="bg-primary hover:bg-primary/90">Save</Button>
+      </div>
+    </div>
+  );
+};
+
 const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
   const [activeTab, setActiveTab] = useState<"folders" | "media" | "bookings" | "packages">("folders");
   const [folders, setFolders] = useState<WeddingFolder[]>([]);
@@ -77,7 +111,10 @@ const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
             <Button variant="ghost" size="icon" asChild><Link to="/"><ArrowLeft size={20} /></Link></Button>
             <h1 className="text-xl font-display font-bold text-foreground">Admin <span className="text-primary">Panel</span></h1>
           </div>
-          <Button variant="ghost" size="sm" onClick={onLogout} className="text-muted-foreground"><LogOut size={16} className="mr-1" /> Logout</Button>
+          <div className="flex items-center gap-2">
+            <ChangePasswordButton />
+            <Button variant="ghost" size="sm" onClick={onLogout} className="text-muted-foreground"><LogOut size={16} className="mr-1" /> Logout</Button>
+          </div>
         </div>
       </div>
 

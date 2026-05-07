@@ -26,7 +26,7 @@ const CTASection = () => (
             </Link>
           </Button>
           <Button size="lg" variant="outline" className="border-primary text-primary hover:bg-primary/10 rounded-full px-8 py-6 text-base font-semibold" asChild>
-            <a href="https://wa.me/250780000000" target="_blank" rel="noopener noreferrer">
+            <a href="https://wa.me/250796889527" target="_blank" rel="noopener noreferrer">
               <MessageCircle size={20} className="mr-2" />
               Chat on WhatsApp
             </a>

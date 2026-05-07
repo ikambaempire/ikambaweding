@@ -19,7 +19,7 @@ const HeroSection = () => (
         transition={{ duration: 0.6, delay: 0.1 }}
         className="flex justify-center mb-4"
       >
-        <img src={logo} alt="Ikamba Wedding Logo" className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 object-contain" />
+        <img src={logo} alt="iKAMBA Wedding Logo" className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 object-contain" />
       </motion.div>
       <motion.h1
         initial={{ opacity: 0, y: 30 }}
@@ -27,7 +27,7 @@ const HeroSection = () => (
         transition={{ duration: 0.8, delay: 0.3 }}
         className="text-4xl sm:text-5xl md:text-7xl font-display font-bold text-primary-foreground leading-tight mb-2"
       >
-        IKAMBA <span className="text-primary">WEDDING</span>
+        iKAMBA <span className="text-primary">WEDDING</span>
       </motion.h1>
 
       <motion.p

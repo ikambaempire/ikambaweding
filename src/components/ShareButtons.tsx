@@ -18,7 +18,7 @@ interface ShareButtonsProps {
 
 const ShareButtons = ({ url, title, className = "" }: ShareButtonsProps) => {
   const { toast } = useToast();
-  const shareText = `Check out this from Ikamba Wedding: ${title}`;
+  const shareText = `Check out this from iKAMBA Wedding: ${title}`;
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + " " + url)}`;
   const instagramCopy = () => {
     navigator.clipboard.writeText(url);

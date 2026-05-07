@@ -17,7 +17,7 @@ const WelcomeSection = () => (
           for a lifetime.
         </p>
 
-        <img src={logo} alt="Ikamba Wedding Logo" className="w-16 h-16 md:w-20 md:h-20 object-contain mx-auto mb-6" />
+        <img src={logo} alt="iKAMBA Wedding Logo" className="w-16 h-16 md:w-20 md:h-20 object-contain mx-auto mb-6" />
 
         <h2 className="text-2xl md:text-4xl font-display font-bold text-foreground mb-2">
           W E L C O M E

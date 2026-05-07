@@ -44,10 +44,20 @@ export const CATEGORIES = [
   'Honeymoon',
 ] as const;
 
-const ADMIN_PASS = 'ikamba2024';
+const ADMIN_PASS_KEY = 'ikamba_admin_pass';
+const DEFAULT_ADMIN_PASS = 'ikamba2024';
+
+export const getAdminPassword = (): string => {
+  try { return localStorage.getItem(ADMIN_PASS_KEY) || DEFAULT_ADMIN_PASS; }
+  catch { return DEFAULT_ADMIN_PASS; }
+};
+
+export const setAdminPassword = (newPass: string): void => {
+  localStorage.setItem(ADMIN_PASS_KEY, newPass);
+};
 
 export const verifyAdmin = (password: string): boolean => {
-  return password === ADMIN_PASS;
+  return password === getAdminPassword();
 };
 
 // ---- Folders ----

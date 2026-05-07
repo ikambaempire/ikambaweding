@@ -8,7 +8,7 @@ import QuoteSection from "@/components/QuoteSection";
 import PricingPreview from "@/components/PricingPreview";
 import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
-import { Link } from "react-router-dom";
+
 
 const Index = () => {
   return (
@@ -23,12 +23,6 @@ const Index = () => {
       <PricingPreview />
       <CTASection />
       <Footer />
-      <Link
-        to="/admin"
-        className="fixed bottom-4 right-4 z-10 text-xs text-muted-foreground/40 hover:text-muted-foreground/70 transition-colors"
-      >
-        Admin
-      </Link>
     </div>
   );
 };
