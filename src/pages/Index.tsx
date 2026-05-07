@@ -8,7 +8,7 @@ import QuoteSection from "@/components/QuoteSection";
 import PricingPreview from "@/components/PricingPreview";
 import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
-import { Link } from "react-router-dom";
+
 
 const Index = () => {
   return (

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { verifyAdmin, getMedia, addMedia, removeMedia, getFolders, createFolder, deleteFolder, updateFolderCover, getBookings, updateBookingStatus, getPackages, createPackage, updatePackage, deletePackage, MediaItem, WeddingFolder, BookingRequest, Package, CATEGORIES } from "@/lib/storage";
+import { verifyAdmin, setAdminPassword, getMedia, addMedia, removeMedia, getFolders, createFolder, deleteFolder, updateFolderCover, getBookings, updateBookingStatus, getPackages, createPackage, updatePackage, deletePackage, MediaItem, WeddingFolder, BookingRequest, Package, CATEGORIES } from "@/lib/storage";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -77,7 +77,10 @@ const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
             <Button variant="ghost" size="icon" asChild><Link to="/"><ArrowLeft size={20} /></Link></Button>
             <h1 className="text-xl font-display font-bold text-foreground">Admin <span className="text-primary">Panel</span></h1>
           </div>
-          <Button variant="ghost" size="sm" onClick={onLogout} className="text-muted-foreground"><LogOut size={16} className="mr-1" /> Logout</Button>
+          <div className="flex items-center gap-2">
+            <ChangePasswordButton />
+            <Button variant="ghost" size="sm" onClick={onLogout} className="text-muted-foreground"><LogOut size={16} className="mr-1" /> Logout</Button>
+          </div>
         </div>
       </div>
 
