@@ -35,7 +35,7 @@ const StoryShowcase = () => {
               <motion.img
                 key={slides[index]}
                 src={slides[index]}
-                alt="Ikamba Wedding moment"
+                alt="iKAMBA Wedding moment"
                 initial={{ opacity: 0, scale: 1.05 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 1 }}
@@ -66,7 +66,7 @@ const StoryShowcase = () => {
           >
             <p className="text-xs tracking-[0.4em] text-primary uppercase mb-4">Our Story</p>
             <p className="text-muted-foreground font-serif leading-relaxed text-base md:text-lg mb-5">
-              Welcome to <span className="text-primary font-semibold">"IKAMBA WEDDING"</span> — where every frame feels like forever.
+              Welcome to <span className="text-primary font-semibold">"iKAMBA WEDDING"</span> — where every frame feels like forever.
             </p>
             <p className="text-muted-foreground font-serif leading-relaxed text-base md:text-lg mb-5">
               We believe wedding photography should be more than posed smiles and pretty backdrops.

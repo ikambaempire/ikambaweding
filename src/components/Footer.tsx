@@ -8,9 +8,9 @@ const Footer = () => (
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         <div className="md:col-span-2">
           <div className="flex items-center gap-2 mb-4">
-            <img src={logo} alt="Ikamba Wedding" className="w-10 h-10 object-contain" />
+            <img src={logo} alt="iKAMBA Wedding" className="w-10 h-10 object-contain" />
             <span className="font-display font-bold text-foreground text-xl">
-              IKAMBA <span className="text-primary">WEDDING</span>
+              iKAMBA <span className="text-primary">WEDDING</span>
             </span>
           </div>
           <p className="text-muted-foreground text-sm leading-relaxed max-w-md">
@@ -45,7 +45,7 @@ const Footer = () => (
 
       <div className="border-t border-border mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         <p className="text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Ikamba Wedding. All rights reserved.
+          © {new Date().getFullYear()} iKAMBA Wedding. All rights reserved.
         </p>
         <p className="text-xs text-muted-foreground flex items-center gap-1">
           Made with <Heart size={12} className="text-primary" /> in Rwanda

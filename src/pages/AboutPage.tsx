@@ -21,7 +21,7 @@ const AboutPage = () => (
             About <span className="text-primary">Us</span>
           </h1>
           <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Ikamba Wedding is a premier wedding photography and cinematography studio based in Kigali, Rwanda. 
+            iKAMBA Wedding is a premier wedding photography and cinematography studio based in Kigali, Rwanda. 
             We are passionate about telling love stories through stunning visuals that couples will cherish for a lifetime.
           </p>
         </motion.div>
@@ -47,7 +47,7 @@ const AboutPage = () => (
             <h2 className="text-2xl font-display font-bold text-foreground mb-4">Our <span className="text-primary">Story</span></h2>
             <div className="space-y-4 text-muted-foreground leading-relaxed">
               <p>
-                Founded with a passion for capturing the beauty of love, Ikamba Wedding has grown to become one of Rwanda's most trusted wedding coverage teams. We believe every wedding is unique, and our approach reflects that — no two wedding films or photo collections look the same.
+                Founded with a passion for capturing the beauty of love, iKAMBA Wedding has grown to become one of Rwanda's most trusted wedding coverage teams. We believe every wedding is unique, and our approach reflects that — no two wedding films or photo collections look the same.
               </p>
               <p>
                 Our team combines artistic vision with technical expertise, using the latest equipment and techniques to deliver stunning results. From intimate ceremonies to grand celebrations, we adapt our style to match your vision.

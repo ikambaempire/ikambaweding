@@ -44,7 +44,7 @@ const BookingPage = () => {
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center max-w-md">
             <CheckCircle size={64} className="text-primary mx-auto mb-6" />
             <h1 className="text-3xl font-display font-bold text-foreground mb-3">Booking Received!</h1>
-            <p className="text-muted-foreground mb-6">Thank you for choosing Ikamba Wedding. We'll get back to you within 24 hours to confirm your booking details.</p>
+            <p className="text-muted-foreground mb-6">Thank you for choosing iKAMBA Wedding. We'll get back to you within 24 hours to confirm your booking details.</p>
             <Button onClick={() => { setSubmitted(false); setForm({ clientName: "", clientEmail: "", clientPhone: "", weddingDate: "", package: "", venue: "", message: "" }); }} variant="outline" className="border-primary text-primary hover:bg-primary/10 rounded-full">Submit Another Booking</Button>
           </motion.div>
         </div>

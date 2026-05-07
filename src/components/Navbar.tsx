@@ -22,9 +22,9 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/60 backdrop-blur-lg border-b border-border/50">
       <div className="container flex items-center justify-between py-3">
         <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="Ikamba Wedding" className="w-8 h-8 object-contain" />
+          <img src={logo} alt="iKAMBA Wedding" className="w-8 h-8 object-contain" />
           <span className="font-display font-bold text-foreground text-lg">
-            IKAMBA <span className="text-primary">WEDDING</span>
+            iKAMBA <span className="text-primary">WEDDING</span>
           </span>
         </Link>
 
