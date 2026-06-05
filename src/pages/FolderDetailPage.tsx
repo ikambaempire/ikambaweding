@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Play, X, ImageIcon, FolderOpen, Video } from "lucide-react";
+import { ArrowLeft, Play, X, ImageIcon, FolderOpen, Video, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -180,24 +180,51 @@ const FolderDetailPage = () => {
       </div>
 
       {/* Lightbox */}
-      {selectedItem && (
-        <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4" onClick={() => setSelectedItem(null)}>
-          <Button variant="ghost" size="icon" className="absolute top-4 right-4 text-foreground z-10" onClick={() => setSelectedItem(null)}>
-            <X size={24} />
-          </Button>
-          <div className="relative max-w-5xl w-full" onClick={(e) => e.stopPropagation()}>
-            {selectedItem.type === "image" ? (
-              <img src={selectedItem.url} alt={selectedItem.title} className="max-w-full max-h-[85vh] object-contain rounded-lg mx-auto" />
-            ) : (
-              <video src={selectedItem.url} controls autoPlay className="w-full rounded-lg" />
+      {selectedItem && (() => {
+        const list = selectedItem.type === "image" ? images : videos;
+        const idx = list.findIndex((m) => m.id === selectedItem.id);
+        const goPrev = (e?: React.MouseEvent) => {
+          e?.stopPropagation();
+          if (list.length === 0) return;
+          setSelectedItem(list[(idx - 1 + list.length) % list.length]);
+        };
+        const goNext = (e?: React.MouseEvent) => {
+          e?.stopPropagation();
+          if (list.length === 0) return;
+          setSelectedItem(list[(idx + 1) % list.length]);
+        };
+        return (
+          <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4" onClick={() => setSelectedItem(null)}
+            onKeyDown={(e) => { if (e.key === "ArrowLeft") goPrev(); if (e.key === "ArrowRight") goNext(); }}
+            tabIndex={0}
+          >
+            <Button variant="ghost" size="icon" className="absolute top-4 right-4 text-foreground z-10" onClick={() => setSelectedItem(null)}>
+              <X size={24} />
+            </Button>
+            {list.length > 1 && (
+              <>
+                <Button variant="ghost" size="icon" className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 text-foreground z-10 bg-black/40 hover:bg-black/60 rounded-full h-12 w-12" onClick={goPrev}>
+                  <ChevronLeft size={28} />
+                </Button>
+                <Button variant="ghost" size="icon" className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 text-foreground z-10 bg-black/40 hover:bg-black/60 rounded-full h-12 w-12" onClick={goNext}>
+                  <ChevronRight size={28} />
+                </Button>
+              </>
             )}
-            <div className="flex items-center justify-between mt-3">
-              <p className="text-foreground text-sm font-medium">{selectedItem.title}</p>
-              <ShareButtons url={selectedItem.url} title={selectedItem.title} />
+            <div className="relative max-w-5xl w-full" onClick={(e) => e.stopPropagation()}>
+              {selectedItem.type === "image" ? (
+                <img src={selectedItem.url} alt={selectedItem.title} className="max-w-full max-h-[85vh] object-contain rounded-lg mx-auto" />
+              ) : (
+                <video src={selectedItem.url} controls autoPlay className="w-full rounded-lg" />
+              )}
+              <div className="flex items-center justify-between mt-3">
+                <p className="text-foreground text-sm font-medium">{selectedItem.title} {list.length > 1 && <span className="text-muted-foreground ml-2">({idx + 1}/{list.length})</span>}</p>
+                <ShareButtons url={selectedItem.url} title={selectedItem.title} />
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
       <Footer />
     </div>
   );
