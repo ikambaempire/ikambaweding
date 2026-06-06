@@ -83,22 +83,26 @@ const PortfolioPage = () => {
       </div>
 
       {/* Photos / Videos toggle */}
-      <div className="container pt-10 flex gap-3 justify-center">
+      <div className="container pt-12 flex gap-6 md:gap-10 justify-center">
         <Button
           size="lg"
           variant={typeFilter === "image" ? "default" : "outline"}
           onClick={() => setType("image")}
-          className={typeFilter === "image" ? "bg-primary" : ""}
+          className={`text-lg md:text-xl px-10 py-8 md:px-14 md:py-9 rounded-full animate-heartbeat ${
+            typeFilter === "image" ? "bg-primary" : ""
+          }`}
         >
-          <ImageLucide size={18} className="mr-2" /> Photos
+          <ImageLucide size={22} className="mr-2" /> Photos
         </Button>
         <Button
           size="lg"
           variant={typeFilter === "video" ? "default" : "outline"}
           onClick={() => setType("video")}
-          className={typeFilter === "video" ? "bg-primary" : ""}
+          className={`text-lg md:text-xl px-10 py-8 md:px-14 md:py-9 rounded-full animate-heartbeat ${
+            typeFilter === "video" ? "bg-primary" : ""
+          }`}
         >
-          <Video size={18} className="mr-2" /> Videos
+          <Video size={22} className="mr-2" /> Videos
         </Button>
       </div>
 

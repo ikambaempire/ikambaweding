@@ -76,10 +76,21 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        heartbeat: {
+          "0%, 100%": { 
+            transform: "scale(1)", 
+            boxShadow: "0 0 0 0 hsl(var(--primary) / 0.5)" 
+          },
+          "50%": { 
+            transform: "scale(1.03)", 
+            boxShadow: "0 0 25px 5px hsl(var(--primary) / 0.4)" 
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        heartbeat: "heartbeat 1.8s ease-in-out infinite",
       },
     },
   },
